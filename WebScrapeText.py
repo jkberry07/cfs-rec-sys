@@ -19,7 +19,7 @@ def scrape_website(url, depth=0, max_depth=1, addl_els=None): #depth is to tell 
             
             # Extract main content
             content = ""
-            main_content = soup.find_all(['p']) #these are different labels in the html code, for paragraph, headers, and list item
+            main_content = soup.find_all(['p',addl_els]) #these are different labels in the html code, for paragraph, headers, and list item
             for element in main_content:
                 content += element.get_text() + " "
             
