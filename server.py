@@ -28,7 +28,14 @@ def contact():
 
 @app.route('/my-story', methods=['GET'])
 def my_story():
-    return render_template('my_story.html') 
+    return render_template('my_story.html')
+
+@app.route('/recommendations', methods=['POST'])
+def recommendations():
+    # Get the form data
+    # Generate recommendations based on the form data
+    # Build and return the HTML with the recommendations
+    return render_template('recommendations.html')
 
 # Start the server
 if __name__ == '__main__':
