@@ -18,6 +18,18 @@ def home():
 def start_survey():
     return 'Start survey'
 
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
+
+@app.route('/contact', methods=['GET'])
+def contact():
+    return render_template('contact.html')
+
+@app.route('/my-story', methods=['GET'])
+def my_story():
+    return render_template('my_story.html') 
+
 # Start the server
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
