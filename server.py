@@ -16,7 +16,7 @@ def home():
 
 @app.route('/start_survey', methods=['GET'])
 def start_survey():
-    return 'Start survey'
+    return render_template('start-survey.html')
 
 @app.route('/about', methods=['GET'])
 def about():
