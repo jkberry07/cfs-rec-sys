@@ -28,21 +28,22 @@
   <div class="container">
     <form action="/recommendations" method="post" class="survey-form">
       <section class="quiz-section">
-        <h2>Self-Reflection Questions</h2>
-        <p>Choose three questions from the dropdowns below and share your thoughts. Your answers will help us recommend programs that align with your values and perspective.</p>
+        <h2>Short-Answer Questions</h2>
+        <p>Answer three questions of your choice in 2-3 sentences, more if you wish, focusing on what you would most like to see reflected in a recovery program. Your answers will be compared with text from program websites to get an idea of which programs might be the best fit with your values and perspective.</p>
+        <p>After you submit the survey, you will be shown the top 3 programs based on your answers and filters, with links to the programs so you can learn more. You will also have the option to see the full list of programs ranked by how well they match your answers.</p>
         
         <!-- Question 1 -->
         <div class="question">
           <select id="question1" name="question1" class="question-select">
             <option value="">Select a question...</option>
-            <option value="proud">What in your life are you proudest of?</option>
+            <option value="purpose">What do you believe is the purpose of life?</option>
             <option value="values">What core values guide your decisions?</option>
             <option value="admire">What are some qualities of a person you greatly admire?</option>
-            <option value="purpose">What do you believe is the purpose of life?</option>
-            <option value="memory">What childhood memory makes you smile?</option>
             <option value="growth">How do you approach personal growth and development?</option>
             <option value="happiness">What does happiness mean to you?</option>
+            <option value="memory">What childhood memory makes you smile?</option>
             <option value="lessons">What important lessons has life taught you?</option>
+            <option value="proud">What in your life are you proudest of?</option>
           </select>
           <textarea id="answer1" name="answer1" rows="5" placeholder="Your response..."></textarea>
         </div>
@@ -81,14 +82,14 @@
       </section>
         
       <section class="filters">
-        <h2>Program Preferences</h2>
-        <p>Toggle each option to require that feature in your recommended programs. If untoggled, programs without this feature may still be recommended.</p>
+        <h2>Program Filters</h2>
+        <p>For programs that are paid monthly, the price shown is over the course of 6 months.</p>
         
         <div class="filter-options">
           <!-- Price Range -->
           <div class="filter-group">
-            <label for="max-price">Maximum Price ($):</label>
-            <input type="number" id="max-price" name="max-price" min="0" step="10" value="500">
+            <label for="max-price">Maximum Price ($, USD):</label>
+            <input type="number" id="max-price" name="max-price" min="300" max="1000" step="10" value="0">
           </div>
             
             <!-- Toggleable Filters -->
@@ -100,7 +101,7 @@
                     <input type="checkbox" name="refund-required" value="true">
                     <span class="slider"></span>
                 </label>
-                <span>Required</span>
+                <span> </span>
             </div>
               
               <!-- Financial Aid -->
@@ -110,7 +111,7 @@
                     <input type="checkbox" name="financial-aid-required" value="true">
                     <span class="slider"></span>
                 </label>
-                <span>Required</span>
+                <span> </span>
             </div>
               
             <!-- Coaching Options -->
@@ -120,7 +121,7 @@
                     <input type="checkbox" name="coaching-required" value="true">
                     <span class="slider"></span>
                 </label>
-                <span>Required</span>
+                <span> </span>
             </div>
               
             <!-- Community Element -->
@@ -130,7 +131,7 @@
                 <input type="checkbox" name="community-required" value="true">
                 <span class="slider"></span>
               </label>
-              <span>Required</span>
+              <span> </span>
             </div>
               
             <!-- Forum Element -->
@@ -140,20 +141,20 @@
                 <input type="checkbox" name="forum-required" value="true">
                 <span class="slider"></span>
               </label>
-              <span>Required</span>
+              <span> </span>
             </div>
           </div>
         </div>
       </section>
         
       <div class="submit-section">
-          <button type="submit" class="submit-btn">Get My Program Recommendations</button>
+          <button type="submit" class="submit-btn">Submit Responses</button>
       </div>
     </form>
   </div>
     
   <footer>
-    <p>© 2025 ME/CFS Brain Retraining Pathfinder</p>
+    <p> </p>
     <p>This website provides educational information only and is not a substitute for medical advice.</p>
   </footer>
 
@@ -195,5 +196,49 @@
       });
     });
   </script>
+
+<script>
+  // Loading overlay functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const surveyForm = document.querySelector('.survey-form');
+    
+    if (surveyForm) {
+      surveyForm.addEventListener('submit', function(e) {
+        // Validate form before showing loading overlay
+        const question1 = document.getElementById('question1').value;
+        const answer1 = document.getElementById('answer1').value.trim();
+        const question2 = document.getElementById('question2').value;
+        const answer2 = document.getElementById('answer2').value.trim();
+        const question3 = document.getElementById('question3').value;
+        const answer3 = document.getElementById('answer3').value.trim();
+        
+        if (!question1 || !answer1 || !question2 || !answer2 || !question3 || !answer3) {
+          e.preventDefault();
+          alert('Please select and answer all three questions before submitting.');
+          return;
+        }
+        
+        // Create and show loading overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        
+        const spinnerContainer = document.createElement('div');
+        spinnerContainer.style.textAlign = 'center';
+        
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner';
+        
+        const loadingText = document.createElement('div');
+        loadingText.className = 'loading-text';
+        loadingText.textContent = 'Generating recommendations...';
+        
+        spinnerContainer.appendChild(spinner);
+        spinnerContainer.appendChild(loadingText);
+        overlay.appendChild(spinnerContainer);
+        document.body.appendChild(overlay);
+      });
+    }
+  });
+</script>
 </body>
 </html>
