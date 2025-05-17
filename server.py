@@ -14,9 +14,9 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-@app.route('/start_survey', methods=['GET'])
+@app.route('/survey', methods=['GET'])
 def start_survey():
-    return render_template('start-survey.html')
+    return render_template('survey.html')
 
 @app.route('/about', methods=['GET'])
 def about():
@@ -28,7 +28,11 @@ def contact():
 
 @app.route('/my-story', methods=['GET'])
 def my_story():
-    return render_template('my_story.html')
+    return render_template('my-story.html')
+
+@app.route('/what-is-brain-retraining', methods=['GET'])
+def what_is_brain_retraining():
+    return render_template('brain-retraining.html')
 
 @app.route('/recommendations', methods=['POST'])
 def recommendations():
