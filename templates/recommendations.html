@@ -6,20 +6,7 @@
   <title>Recommended Recovery Programs</title>
   <link rel="stylesheet" href="/static/styles.css">
   <style>
-    /* Additional styles specific to recommendations page */
-    .program-card {
-      background-color: var(--light-green);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
-    }
-    
-    .program-card:hover {
-      transform: translateY(-5px);
-    }
-    
+  
     .program-title {
       color: var(--primary-green);
       font-size: 1.5em;
@@ -85,33 +72,6 @@
       margin-bottom: 5px;
     }
     
-    .ranking-nav {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-      gap: 10px;
-    }
-    
-    .ranking-btn {
-      background: linear-gradient(to right, var(--primary-green), var(--primary-blue));
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 500;
-    }
-    
-    .ranking-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .ranking-btn.active {
-      background: var(--primary-green);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
     
     .filter-section {
       background-color: white;
@@ -145,7 +105,7 @@
       min-width: 200px;
     }
     
-    #max-price {
+    #max_price {
       padding: 0.5rem;
       border: 1px solid #ddd;
       border-radius: 4px;
@@ -181,22 +141,6 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
-    /* Classes for showing/hiding program cards */
-    .program-list .program-card {
-      display: none;
-    }
-    
-    .program-list.show-top-3 .visible-program:nth-child(-n+3) {
-      display: block;
-    }
-    
-    .program-list.show-top-10 .visible-program:nth-child(-n+10) {
-      display: block;
-    }
-    
-    .program-list.show-all .visible-program {
-      display: block;
-    }
     
     .no-results {
       background-color: var(--light-blue);
@@ -253,6 +197,7 @@
     }
   </style>
 </head>
+<!-- Version: THE TIME IS NOW -->
 <body>
   <header>
     <div class="wave-container">
@@ -273,262 +218,198 @@
   </nav>
   
   <div class="container">
-    <div class="filter-section">
-      <div class="filter-title">Filter Programs</div>
-      <form id="filter-form">
-        <div class="filter-options">
-          <div class="filter-row">
-            <span class="filter-label">Maximum Price ($):</span>
-            <input type="number" id="max-price" name="max-price" value="{{ filters.max_price or '' }}" min="0">
+    <div class="filters">
+      <div class="filter-title">Filter Settings</div>
+      
+      <div class="filter-row">
+          <div class="filter-group">
+              <label for="max_price">Maximum Price ($)</label>
+              <input type="number" id="max_price" min="0" placeholder="Any price">
           </div>
           
-          <div class="filter-row">
-            <span class="filter-label">Refund Policy or Free Trial:</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="refund-required" name="refund-required" {% if filters.refund %}checked{% endif %}>
-              <span class="slider"></span>
-            </label>
+          <div class="filter-group">
+              <label for="display-count">Display Top</label>
+              <select id="display-count">
+                  <option value="3">Top 3</option>
+                  <option value="5">Top 5</option>
+                  <option value="10">Top 10</option>
+                  <option value="all">All Programs</option>
+              </select>
           </div>
-          
-          <div class="filter-row">
-            <span class="filter-label">Financial Aid Available:</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="financial-aid-required" name="financial-aid-required" {% if filters.financial_aid %}checked{% endif %}>
-              <span class="slider"></span>
-            </label>
-          </div>
-          
-          <div class="filter-row">
-            <span class="filter-label">Coaching Options:</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="coaching-required" name="coaching-required" {% if filters.coaching %}checked{% endif %}>
-              <span class="slider"></span>
-            </label>
-          </div>
-          
-          <div class="filter-row">
-            <span class="filter-label">Community Element:</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="community-required" name="community-required" {% if filters.community %}checked{% endif %}>
-              <span class="slider"></span>
-            </label>
-          </div>
-          
-          <div class="filter-row">
-            <span class="filter-label">Forum Element:</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="forum-required" name="forum-required" {% if filters.forum %}checked{% endif %}>
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <button type="button" id="apply-filters" class="ranking-btn">Apply Filters</button>
-      </form>
-    </div>
-    
-    <div class="ranking-nav">
-      <button class="ranking-btn active" data-show="top-3">Top 3</button>
-      <button class="ranking-btn" data-show="top-10">Top 10</button>
-      <button class="ranking-btn" data-show="all">Show All</button>
-    </div>
-    
-    <div class="no-results">
-      <h3>No programs match your filter criteria</h3>
-      <p>Try adjusting your filters to see more results.</p>
-    </div>
-    
-    <div class="program-list show-top-3">
-      {% for program in ranked_programs %}
-      <div class="program-card" 
-           data-price="{{ program.price }}"
-           data-refund="{{ 'yes' if program.refund_policy else 'no' }}"
-           data-financial-aid="{{ 'yes' if program.financial_aid else 'no' }}"
-           data-coaching="{{ 'yes' if program.coaching else 'no' }}"
-           data-forum="{{ 'yes' if program.forum else 'no' }}"
-           data-community="{{ 'yes' if program.community else 'no' }}">
-        <div class="program-title">{{ program.name }} <span class="score-badge">{{ program.score }}% Match</span></div>
-        
-        <div class="match-section">
-          <div class="match-heading">Top Matches in Values & Perspective</div>
-          <div class="match-item">
-            <strong>You said:</strong> "{{ program.user_sentences[0] if program.user_sentences else '' }}"
-          </div>
-          <div class="match-item">
-            <strong>{{ program.name }} says:</strong> "{{ program.program_sentences[0] if program.program_sentences else '' }}"
-          </div>
-          
-          {% if program.user_sentences|length > 1 and program.program_sentences|length > 1 %}
-          <div class="match-item">
-            <strong>You said:</strong> "{{ program.user_sentences[1] }}"
-          </div>
-          <div class="match-item">
-            <strong>{{ program.name }} says:</strong> "{{ program.program_sentences[1] }}"
-          </div>
-          {% endif %}
-        </div>
-        
-        {% if program.description %}
-        <div class="program-description">{{ program.description }}</div>
-        {% endif %}
-        
-        <div class="program-details">
-          <div class="program-detail">
-            <span class="detail-label">Price</span>
-            ${{ program.price }}
-            {% if program.pricing_notes %}
-            <div><small>{{ program.pricing_notes }}</small></div>
-            {% endif %}
-          </div>
-          
-          <div class="program-detail">
-            <span class="detail-label">Refund Policy</span>
-            {{ program.refund_policy if program.refund_policy else 'Not specified' }}
-          </div>
-          
-          <div class="program-detail">
-            <span class="detail-label">Coaching</span>
-            {{ program.coaching }}
-          </div>
-          
-          <div class="program-detail">
-            <span class="detail-label">Forum</span>
-            {{ program.forum }}
-          </div>
-          
-          <div class="program-detail">
-            <span class="detail-label">Community Element</span>
-            {{ program.community }}
-          </div>
-          
-          <div class="program-detail">
-            <span class="detail-label">Financial Aid</span>
-            {{ program.financial_aid }}
-          </div>
-        </div>
-        
-        <a href="{{ program.url }}" target="_blank" class="learn-more-btn">Visit Program Website</a>
       </div>
-      {% endfor %}
+      
+      <div class="filter-row">
+          <div class="filter-group">
+              <label>Program Features</label>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="refund" value="refund">
+                  <label for="refund-policy">Refund Policy</label>
+              </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="financial_aid" value="financial_aid">
+                  <label for="financial_aid">Financial Aid</label>
+              </div>
+          </div>
+          
+          <div class="filter-group">
+              <label>Support Features</label>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="coaching" value="coaching">
+                  <label for="coaching">Coaching Available</label>
+              </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="forum" value="forum">
+                  <label for="forum">Forum Access</label>
+              </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="community" value="community">
+                  <label for="community">Community Support</label>
+              </div>
+          </div>
+      </div>
+      
+      <button id="apply-filters">Apply Filters</button>
+  </div>
+    
+    <div class="results">
+        <div class="results-count" id="results-count">Showing all recovery programs</div>
+        <div id="programs-list"></div>
     </div>
     
     <a href="survey.html" class="back-link">← Back to Survey</a>
   </div>
   
-  <footer>
-    <div class="footer-wave">
-      <div class="wave wave-footer"></div>
-      <div class="footer-content">
-        <p>This website provides educational information only and is not a substitute for medical advice.</p>
-      </div>
-    </div>
-  </footer>
   
   <script>
     
-    // Handle showing different numbers of recommendations
-    document.querySelectorAll('.ranking-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const showClass = this.getAttribute('data-show');
+    function displayPrograms() {
+        const rankedPrograms = {{ ranked_programs|safe }};
+        const maxPrice = document.getElementById('max_price').value ? parseFloat(document.getElementById('max_price').value) : Infinity;
+        const displayCount = document.getElementById('display-count').value;
+        const refund_policy = document.getElementById('refund').checked;
+        const financial_aid = document.getElementById('financial_aid').checked;
+        const coaching = document.getElementById('coaching').checked;
+        const forum = document.getElementById('forum').checked;
+        const community = document.getElementById('community').checked;
         
-        // Update active button
-        document.querySelectorAll('.ranking-btn').forEach(btn => {
-          btn.classList.remove('active');
+        // Filter programs based on criteria
+        let filteredPrograms =  rankedPrograms.filter(program => {
+            if (program.price > maxPrice) return false;
+            if (refund_policy && !program.refund_policy) return false;
+            if (financial_aid && !program.financial_aid) return false;
+            if (coaching && !program.coaching) return false;
+            if (forum && !program.forum) return false;
+            if (community && !program.community) return false;
+            return true;
         });
-        this.classList.add('active');
         
-        // Update visible programs
-        const programList = document.querySelector('.program-list');
-        programList.className = 'program-list';
-        programList.classList.add('show-' + showClass);
         
-        // After changing view, check if we need to show "no results" message
-        checkNoResults();
-      });
-    });
+        // Limit display count if needed
+        if (displayCount !== 'all') {
+            filteredPrograms = filteredPrograms.slice(0, parseInt(displayCount));
+        }
+        
+        // Update results count
+        const resultsCountElement = document.getElementById('results-count');
+        resultsCountElement.textContent = `Showing ${filteredPrograms.length} recovery program${filteredPrograms.length !== 1 ? 's' : ''}`;
+        
+        // Display the filtered programs
+        const programsListElement = document.getElementById('programs-list');
+        programsListElement.innerHTML = '';
+        
+        if (filteredPrograms.length === 0) {
+            programsListElement.innerHTML = '<div class="no-results">No programs match your criteria. Try adjusting your filters.</div>';
+            return;
+        }
+        
+        filteredPrograms.forEach(program => {
+            const programCard = document.createElement('div');
+            programCard.className = 'program-card';
+            
+            // Create program header (name and price)
+            const programHeader = document.createElement('div');
+            programHeader.className = 'program-header';
+            
+            const nameElement = document.createElement('h3');
+            nameElement.className = 'program-title';
+            nameElement.textContent = program.name;
+            
+            const priceElement = document.createElement('div');
+            priceElement.className = 'program-price';
+            priceElement.textContent = `$${program.price}`;
+            
+            programHeader.appendChild(nameElement);
+            programHeader.appendChild(priceElement);
+            
+            // Create score element
+            const scoreElement = document.createElement('div');
+            scoreElement.className = 'program-score';
+            
+            
+            const scoreText = document.createElement('span');
+            scoreText.textContent = ` ${program.score} `;
+            scoreElement.appendChild(scoreText);
+            
+            // Create description
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = program.description;
+            
+            // Create features badges
+            const featuresElement = document.createElement('div');
+            featuresElement.className = 'program-features';
+            
+            if (program.refund_policy) {
+                const badge = document.createElement('span');
+                badge.className = 'feature-badge';
+                badge.textContent = 'Refund Policy';
+                featuresElement.appendChild(badge);
+            }
+            
+            if (program.financial_aid) {
+                const badge = document.createElement('span');
+                badge.className = 'feature-badge';
+                badge.textContent = program.financial_aid;
+                featuresElement.appendChild(badge);
+            }
+            
+            if (program.coaching) {
+                const badge = document.createElement('span');
+                badge.className = 'feature-badge';
+                badge.textContent = program.coaching;
+                featuresElement.appendChild(badge);
+            }
+            
+            if (program.forum) {
+                const badge = document.createElement('span');
+                badge.className = 'feature-badge';
+                badge.textContent = 'Forum';
+                featuresElement.appendChild(badge);
+            }
+            
+            if (program.community) {
+                const badge = document.createElement('span');
+                badge.className = 'feature-badge';
+                badge.textContent = 'Community Element';
+                featuresElement.appendChild(badge);
+            }
+            
+            // Append all elements to the program card
+            programCard.appendChild(programHeader);
+            programCard.appendChild(scoreElement);
+            programCard.appendChild(descriptionElement);
+            programCard.appendChild(featuresElement);
+            
+            // Add the program card to the list
+            programsListElement.appendChild(programCard);
+          });
+        }
+        
+        // Initial display
+        document.addEventListener('DOMContentLoaded', displayPrograms);
+        
+        // Add event listener to the filter button
+        document.getElementById('apply-filters').addEventListener('click', displayPrograms);
     
-    // Handle filtering programs
-    document.getElementById('apply-filters').addEventListener('click', function() {
-      const maxPrice = document.getElementById('max-price').value;
-      const refundRequired = document.getElementById('refund-required').checked;
-      const financialAidRequired = document.getElementById('financial-aid-required').checked;
-      const coachingRequired = document.getElementById('coaching-required').checked;
-      const forumRequired = document.getElementById('forum-required').checked;
-      const communityRequired = document.getElementById('community-required').checked;
-      
-      // First hide all cards and remove the visible-program class
-      document.querySelectorAll('.program-card').forEach(card => {
-        card.style.display = 'none';
-        card.classList.remove('visible-program');
-      });
-      
-      // Then determine which cards should be visible based on filters
-      let visibleCount = 0;
-      document.querySelectorAll('.program-card').forEach(card => {
-        let showCard = true;
-        
-        // Filter by price
-        if (maxPrice && parseFloat(card.getAttribute('data-price')) > parseFloat(maxPrice)) {
-          showCard = false;
-        }
-        
-        // Filter by refund policy
-        if (refundRequired && card.getAttribute('data-refund') !== 'yes') {
-          showCard = false;
-        }
-        
-        // Filter by financial aid
-        if (financialAidRequired && card.getAttribute('data-financial-aid') !== 'yes') {
-          showCard = false;
-        }
-        
-        // Filter by coaching
-        if (coachingRequired && card.getAttribute('data-coaching') !== 'yes') {
-          showCard = false;
-        }
-        
-        // Filter by forum
-        if (forumRequired && card.getAttribute('data-forum') !== 'yes') {
-          showCard = false;
-        }
-        
-        // Filter by community
-        if (communityRequired && card.getAttribute('data-community') !== 'yes') {
-          showCard = false;
-        }
-        
-        // Mark the card as a visible program if it passes all filters
-        if (showCard) {
-          card.classList.add('visible-program');
-          visibleCount++;
-        }
-      });
-      
-      // Check for no results scenario
-      checkNoResults();
-      
-      // Re-apply current view (top-3, top-10, all)
-      const activeView = document.querySelector('.ranking-btn.active').getAttribute('data-show');
-      const programList = document.querySelector('.program-list');
-      programList.className = 'program-list';
-      programList.classList.add('show-' + activeView);
-    });
-    
-    function checkNoResults() {
-      const visiblePrograms = document.querySelectorAll('.visible-program');
-      const noResultsMessage = document.querySelector('.no-results');
-      
-      if (visiblePrograms.length === 0) {
-        noResultsMessage.style.display = 'block';
-      } else {
-        noResultsMessage.style.display = 'none';
-      }
-    }
-    
-    // Initialize all cards as visible on page load
-    document.querySelectorAll('.program-card').forEach(card => {
-      card.classList.add('visible-program');
-    });
   </script>
 </body>
 </html>

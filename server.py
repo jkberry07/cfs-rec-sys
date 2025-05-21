@@ -5,10 +5,15 @@ from flask import Flask, render_template, request
 from Programs import Program
 import pickle
 from compare_to_user import generate_recommendation
+import time
+import json
 
 
 # Create Flask app
 app = Flask(__name__)
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True #make sure templates are reloaded when changed
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 #disable caching of static files
 
 # Define a simple route
 @app.route('/', methods=['GET'])
@@ -48,11 +53,11 @@ def recommendations():
     questions = [q1,q2,q3]
 
     max_price = request.form.get('max-price')
-    refund = 'refund-required' in request.form
-    financial_aid = 'financial-aid-required' in request.form
-    coaching = 'coaching-required' in request.form
-    community = 'community-required' in request.form
-    forum = 'forum-required' in request.form
+    refund = 'refund' in request.form
+    financial_aid = 'financial-aid' in request.form
+    coaching = 'coaching' in request.form
+    community = 'community' in request.form
+    forum = 'forum' in request.form
 
     # Open list of programs
     with open('program_list.pkl', 'rb') as file:
@@ -84,6 +89,8 @@ def recommendations():
             'program_tone_sentences': summary['Tone Sentences'][idx][:3],
         })
 
+    ranked_programs_json = json.dumps(ranked_programs)
+
     # Create filter preferences
     filters = {
         'max_price': max_price,
@@ -96,8 +103,14 @@ def recommendations():
 
     # Build and return the HTML with the recommendations
     return render_template('recommendations.html', 
-                          ranked_programs=ranked_programs,
-                          filters=filters)
+                          ranked_programs=ranked_programs_json,
+                          max_price = max_price,
+                          refund=refund,
+                          financial_aid = financial_aid,
+                          coaching=coaching,
+                          community=community,
+                          forum=forum,
+                          version=time.time())
 
 
 # Start the server
