@@ -152,40 +152,6 @@
       display: none;
     }
     
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid var(--light-green);
-      border-radius: 50%;
-      border-top-color: var(--primary-green);
-      animation: spin 1s linear infinite;
-    }
-    
-    .loading-text {
-      margin-top: 15px;
-      color: var(--primary-green);
-      font-weight: bold;
-    }
-    
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    
     @media (max-width: 768px) {
       .program-details {
         grid-template-columns: 1fr;
@@ -196,8 +162,8 @@
       }
     }
   </style>
+
 </head>
-<!-- Version: THE TIME IS NOW -->
 <body>
   <header>
     <div class="wave-container">
@@ -224,7 +190,7 @@
       <div class="filter-row">
           <div class="filter-group">
               <label for="max_price">Maximum Price ($)</label>
-              <input type="number" id="max_price" min="0" placeholder="Any price">
+              <input type="number" id="max_price" min="0" value="{{max_price_survey}}">
           </div>
           
           <div class="filter-group">
@@ -242,11 +208,11 @@
           <div class="filter-group">
               <label>Program Features</label>
               <div class="checkbox-group">
-                  <input type="checkbox" id="refund" value="refund">
+                  <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
                   <label for="refund-policy">Refund Policy</label>
               </div>
               <div class="checkbox-group">
-                  <input type="checkbox" id="financial_aid" value="financial_aid">
+                  <input type="checkbox" id="financial_aid" value="financial_aid" {% if financial_aid_survey %}checked{% endif %}>
                   <label for="financial_aid">Financial Aid</label>
               </div>
           </div>
@@ -254,15 +220,15 @@
           <div class="filter-group">
               <label>Support Features</label>
               <div class="checkbox-group">
-                  <input type="checkbox" id="coaching" value="coaching">
+                  <input type="checkbox" id="coaching" value="coaching" {% if coaching_survey %}checked{% endif %}>
                   <label for="coaching">Coaching Available</label>
               </div>
               <div class="checkbox-group">
-                  <input type="checkbox" id="forum" value="forum">
+                  <input type="checkbox" id="forum" value="forum" {% if forum_survey %}checked{% endif %}>
                   <label for="forum">Forum Access</label>
               </div>
               <div class="checkbox-group">
-                  <input type="checkbox" id="community" value="community">
+                  <input type="checkbox" id="community" value="community" {% if community_survey %}checked{% endif %}>
                   <label for="community">Community Support</label>
               </div>
           </div>
@@ -326,78 +292,79 @@
             const programCard = document.createElement('div');
             programCard.className = 'program-card';
             
-            // Create program header (name and price)
-            const programHeader = document.createElement('div');
-            programHeader.className = 'program-header';
-            
+
             const nameElement = document.createElement('h3');
             nameElement.className = 'program-title';
             nameElement.textContent = program.name;
             
-            const priceElement = document.createElement('div');
-            priceElement.className = 'program-price';
-            priceElement.textContent = `$${program.price}`;
-            
-            programHeader.appendChild(nameElement);
-            programHeader.appendChild(priceElement);
-            
-            // Create score element
             const scoreElement = document.createElement('div');
             scoreElement.className = 'program-score';
+            scoreElement.style.border = '1px solid #000';
+            scoreElement.style.padding = '2px 6px';
+            scoreElement.style.display = 'inline-block';
+            scoreElement.textContent = `${program.score}`;
+
+            const urlElement = document.createElement('a');
+            urlElement.href = program.url;
+            urlElement.textContent = program.url;
+            urlElement.target = '_blank';
+
+            const priceElement = document.createElement('div');
+            priceElement.className = 'program-price';
+            priceElement.textContent = `Price: $${program.price}`;
             
+            const refundElement = document.createElement('p');
+            if (program.refund_policy) {
+                refundElement.textContent = `Refund Policy: ${program.refund_policy}`;
+            } else {
+                refundElement.textContent = `Refund Policy: No`;
+            }
             
-            const scoreText = document.createElement('span');
-            scoreText.textContent = ` ${program.score} `;
-            scoreElement.appendChild(scoreText);
+            const aidElement = document.createElement('p');
+            if (program.financial_aid) {
+                aidElement.innerHTML = `Possibility of Financial Aid: <a href="${program.financial_aid}" target="_blank">${program.financial_aid}</a>`;
+            } else {
+                aidElement.textContent = `Possibility of Financial Aid: No`;
+            } 
+
+            const coachingElement = document.createElement('p');
+            if (program.coaching) {
+                coachingElement.textContent = `Coaching: ${program.coaching}`;
+            } else {
+                coachingElement.textContent = `Coaching: No`;
+            }
+            
+            const communityElement = document.createElement('p');
+            if (program.community) {
+                communityElement.textContent = `Community: ${program.community}`;
+            } else {
+                communityElement.textContent = `Community: No`;
+            }
+            
+            const forumElement = document.createElement('p');
+            if (program.forum) {
+                forumElement.textContent = `Forum: ${program.forum}`;
+            } else {
+                forumElement.textContent = `Forum: No`;
+            }
             
             // Create description
             const descriptionElement = document.createElement('p');
-            descriptionElement.textContent = program.description;
-            
-            // Create features badges
-            const featuresElement = document.createElement('div');
-            featuresElement.className = 'program-features';
-            
-            if (program.refund_policy) {
-                const badge = document.createElement('span');
-                badge.className = 'feature-badge';
-                badge.textContent = 'Refund Policy';
-                featuresElement.appendChild(badge);
-            }
-            
-            if (program.financial_aid) {
-                const badge = document.createElement('span');
-                badge.className = 'feature-badge';
-                badge.textContent = program.financial_aid;
-                featuresElement.appendChild(badge);
-            }
-            
-            if (program.coaching) {
-                const badge = document.createElement('span');
-                badge.className = 'feature-badge';
-                badge.textContent = program.coaching;
-                featuresElement.appendChild(badge);
-            }
-            
-            if (program.forum) {
-                const badge = document.createElement('span');
-                badge.className = 'feature-badge';
-                badge.textContent = 'Forum';
-                featuresElement.appendChild(badge);
-            }
-            
-            if (program.community) {
-                const badge = document.createElement('span');
-                badge.className = 'feature-badge';
-                badge.textContent = 'Community Element';
-                featuresElement.appendChild(badge);
-            }
+            descriptionElement.textContent = "";
             
             // Append all elements to the program card
-            programCard.appendChild(programHeader);
+            programCard.appendChild(nameElement);
+            programCard.appendChild(urlElement);
             programCard.appendChild(scoreElement);
+            programCard.appendChild(priceElement);
+            programCard.appendChild(refundElement);
+            programCard.appendChild(aidElement);
+            programCard.appendChild(coachingElement);
+            programCard.appendChild(communityElement);
+            programCard.appendChild(forumElement);
             programCard.appendChild(descriptionElement);
-            programCard.appendChild(featuresElement);
+            
+            
             
             // Add the program card to the list
             programsListElement.appendChild(programCard);
@@ -405,7 +372,7 @@
         }
         
         // Initial display
-        document.addEventListener('DOMContentLoaded', displayPrograms);
+        document.addEventListener('DOMContentLoaded', displayPrograms());
         
         // Add event listener to the filter button
         document.getElementById('apply-filters').addEventListener('click', displayPrograms);
