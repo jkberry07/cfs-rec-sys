@@ -311,7 +311,7 @@
 
             const priceElement = document.createElement('div');
             priceElement.className = 'program-price';
-            priceElement.textContent = `Price: $${program.price}`;
+            priceElement.textContent = `Price: $${program.price} (${program.pricing_notes})`;
             
             const refundElement = document.createElement('p');
             if (program.refund_policy) {
@@ -322,7 +322,7 @@
             
             const aidElement = document.createElement('p');
             if (program.financial_aid) {
-                aidElement.innerHTML = `Possibility of Financial Aid: <a href="${program.financial_aid}" target="_blank">${program.financial_aid}</a>`;
+                aidElement.innerHTML = `Possibility of Financial Aid: See <a href="${program.financial_aid}" target="_blank">${program.financial_aid}</a>`;
             } else {
                 aidElement.textContent = `Possibility of Financial Aid: No`;
             } 
@@ -352,6 +352,18 @@
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = "";
             
+            const userSentences = document.createElement('p');
+            userSentences.textContent = `You said: ${program.user_sentences}`;
+
+            const programSentences = document.createElement('p');
+            programSentences.textContent = `Closest matching text for meaning from ${program.name}: ${program.program_sentences}`;
+
+            const userToneSentences = document.createElement('p');
+            userToneSentences.textContent = `You said: ${program.user_tone_sentences}`;
+
+            const programToneSentences = document.createElement('p');
+            programToneSentences.textContent = `Closest matching text for tone from ${program.name}: ${program.program_tone_sentences}`;
+
             // Append all elements to the program card
             programCard.appendChild(nameElement);
             programCard.appendChild(urlElement);
@@ -363,7 +375,10 @@
             programCard.appendChild(communityElement);
             programCard.appendChild(forumElement);
             programCard.appendChild(descriptionElement);
-            
+            programCard.appendChild(userSentences);
+            programCard.appendChild(programSentences);
+            programCard.appendChild(userToneSentences);
+            programCard.appendChild(programToneSentences);
             
             
             // Add the program card to the list
