@@ -4,47 +4,394 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recommended Recovery Programs</title>
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="/static/styles.css">
   <style>
-    .program-card {
-      border: 1px solid #ddd;
-      padding: 20px;
-      margin: 10px;
-      border-radius: 5px;
-      max-width: 600px;
-    }
+  
     .program-title {
-      color: #2c3e50;
+      color: var(--primary-green);
       font-size: 1.5em;
       margin-bottom: 10px;
+      font-weight: bold;
     }
+
+    .score-badge {
+      display: inline-block;
+      background: linear-gradient(to right, var(--primary-green), var(--primary-blue));
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-left: 10px;
+      font-size: 0.9em;
+    }
+    
     .program-description {
-      color: #34495e;
+      color: var(--dark-gray);
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    
+    .match-section {
+      background-color: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+    
+    .match-heading {
+      color: var(--primary-blue);
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+    
+    .match-item {
+      padding: 8px;
+      border-left: 3px solid var(--primary-green);
+      background-color: var(--light-gray);
+      margin-bottom: 8px;
+    }
+    
+    .program-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .program-detail {
+      background-color: white;
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    
+    .detail-label {
+      font-weight: bold;
+      color: var(--primary-blue);
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    
+    .filter-section {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .filter-title {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: var(--primary-green);
+      font-weight: bold;
+    }
+    
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .filter-row {
+      display: flex;
+      align-items: center;
       margin-bottom: 10px;
     }
+    
+    .filter-label {
+      min-width: 200px;
+    }
+    
+    #max_price {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 100px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .back-link:hover {
+      color: var(--accent-blue);
+      text-decoration: underline;
+    }
+    
+    .learn-more-btn {
+      background: linear-gradient(to right, var(--primary-green), var(--primary-blue));
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      display: inline-block;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    
+    .learn-more-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    
+    .no-results {
+      background-color: var(--light-blue);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      color: var(--dark-gray);
+      margin: 20px 0;
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .program-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .filter-options {
+        flex-direction: column;
+      }
+    }
   </style>
+
 </head>
 <body>
-  <h1>Your Recommended Recovery Programs</h1>
+  <header>
+    <div class="wave-container">
+      <h1>Your Recommended Recovery Programs</h1>
+      <p class="tagline">Programs matched to your values and preferences</p>
+      <div class="wave"></div>
+    </div>
+  </header>
   
-  <div class="program-card">
-    <div class="program-title">Four Week Fatigue Rescue</div>
-    <div class="program-description">A course by Pamela Rose</div>
-    <button onclick="location.href='program-details.html'">Learn More</button>
+  <nav class="main-nav">
+    <div class="nav-container">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/about" class="nav-link">About</a>
+      <a href="/what-is-brain-retraining" class="nav-link">What is Brain Retraining</a>
+      <a href="/my-story" class="nav-link">My Recovery Story</a>
+      <a href="/contact" class="nav-link">Contact</a>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <div class="filters">
+      <div class="filter-title">Filter Settings</div>
+      
+      <div class="filter-row">
+          <div class="filter-group">
+              <label for="max_price">Maximum Price ($)</label>
+              <input type="number" id="max_price" min="0" value="{{max_price_survey}}">
+          </div>
+          
+          <div class="filter-group">
+              <label for="display-count">Display Top</label>
+              <select id="display-count">
+                  <option value="3">Top 3</option>
+                  <option value="5">Top 5</option>
+                  <option value="10">Top 10</option>
+                  <option value="all">All Programs</option>
+              </select>
+          </div>
+      </div>
+      
+      <div class="filter-row">
+          <div class="filter-group">
+              <label>Program Features</label>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
+                  <label for="refund-policy">Refund Policy</label>
+              </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="financial_aid" value="financial_aid" {% if financial_aid_survey %}checked{% endif %}>
+                  <label for="financial_aid">Financial Aid</label>
+              </div>
+          </div>
+          
+          <div class="filter-group">
+              <label>Support Features</label>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="coaching" value="coaching" {% if coaching_survey %}checked{% endif %}>
+                  <label for="coaching">Coaching Available</label>
+              </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="forum" value="forum" {% if forum_survey %}checked{% endif %}>
+                  <label for="forum">Forum Access</label>
+              </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" id="community" value="community" {% if community_survey %}checked{% endif %}>
+                  <label for="community">Community Support</label>
+              </div>
+          </div>
+      </div>
+      
+      <button id="apply-filters">Apply Filters</button>
   </div>
-
-  <div class="program-card">
-    <div class="program-title">CFS Health</div>
-    <div class="program-description">by Toby Morrison</div>
-    <button onclick="location.href='program-details.html'">Learn More</button>
+    
+    <div class="results">
+        <div class="results-count" id="results-count">Showing all recovery programs</div>
+        <div id="programs-list"></div>
+    </div>
+    
+    <a href="survey.html" class="back-link">← Back to Survey</a>
   </div>
+  
+  
+  <script>
+    
+    function displayPrograms() {
+        const rankedPrograms = {{ ranked_programs|safe }};
+        const maxPrice = document.getElementById('max_price').value ? parseFloat(document.getElementById('max_price').value) : Infinity;
+        const displayCount = document.getElementById('display-count').value;
+        const refund_policy = document.getElementById('refund').checked;
+        const financial_aid = document.getElementById('financial_aid').checked;
+        const coaching = document.getElementById('coaching').checked;
+        const forum = document.getElementById('forum').checked;
+        const community = document.getElementById('community').checked;
+        
+        // Filter programs based on criteria
+        let filteredPrograms =  rankedPrograms.filter(program => {
+            if (program.price > maxPrice) return false;
+            if (refund_policy && !program.refund_policy) return false;
+            if (financial_aid && !program.financial_aid) return false;
+            if (coaching && !program.coaching) return false;
+            if (forum && !program.forum) return false;
+            if (community && !program.community) return false;
+            return true;
+        });
+        
+        
+        // Limit display count if needed
+        if (displayCount !== 'all') {
+            filteredPrograms = filteredPrograms.slice(0, parseInt(displayCount));
+        }
+        
+        // Update results count
+        const resultsCountElement = document.getElementById('results-count');
+        resultsCountElement.textContent = `Showing ${filteredPrograms.length} recovery program${filteredPrograms.length !== 1 ? 's' : ''}`;
+        
+        // Display the filtered programs
+        const programsListElement = document.getElementById('programs-list');
+        programsListElement.innerHTML = '';
+        
+        if (filteredPrograms.length === 0) {
+            programsListElement.innerHTML = '<div class="no-results">No programs match your criteria. Try adjusting your filters.</div>';
+            return;
+        }
+        
+        filteredPrograms.forEach(program => {
+            const programCard = document.createElement('div');
+            programCard.className = 'program-card';
+            
 
-  <div class="program-card">
-    <div class="program-title">ANS Rewire</div>
-    <div class="program-description">by Dan Neuffer</div>
-    <button onclick="location.href='program-details.html'">Learn More</button>
-  </div>
+            const nameElement = document.createElement('h3');
+            nameElement.className = 'program-title';
+            nameElement.textContent = program.name;
+            
+            const scoreElement = document.createElement('div');
+            scoreElement.className = 'program-score';
+            scoreElement.style.border = '1px solid #000';
+            scoreElement.style.padding = '2px 6px';
+            scoreElement.style.display = 'inline-block';
+            scoreElement.textContent = `${program.score}`;
 
-  <a href="survey.html">Back to Survey</a>
+            const urlElement = document.createElement('a');
+            urlElement.href = program.url;
+            urlElement.textContent = program.url;
+            urlElement.target = '_blank';
+
+            const priceElement = document.createElement('div');
+            priceElement.className = 'program-price';
+            priceElement.textContent = `Price: $${program.price} (${program.pricing_notes})`;
+            
+            const refundElement = document.createElement('p');
+            if (program.refund_policy) {
+                refundElement.textContent = `Refund Policy: ${program.refund_policy}`;
+            } else {
+                refundElement.textContent = `Refund Policy: No`;
+            }
+            
+            const aidElement = document.createElement('p');
+            if (program.financial_aid) {
+                aidElement.innerHTML = `Possibility of Financial Aid: See <a href="${program.financial_aid}" target="_blank">${program.financial_aid}</a>`;
+            } else {
+                aidElement.textContent = `Possibility of Financial Aid: No`;
+            } 
+
+            const coachingElement = document.createElement('p');
+            if (program.coaching) {
+                coachingElement.textContent = `Coaching: ${program.coaching}`;
+            } else {
+                coachingElement.textContent = `Coaching: No`;
+            }
+            
+            const communityElement = document.createElement('p');
+            if (program.community) {
+                communityElement.textContent = `Community: ${program.community}`;
+            } else {
+                communityElement.textContent = `Community: No`;
+            }
+            
+            const forumElement = document.createElement('p');
+            if (program.forum) {
+                forumElement.textContent = `Forum: ${program.forum}`;
+            } else {
+                forumElement.textContent = `Forum: No`;
+            }
+            
+            // Create description
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = "";
+            
+            const userSentences = document.createElement('p');
+            userSentences.textContent = `You said: ${program.user_sentences}`;
+
+            const programSentences = document.createElement('p');
+            programSentences.textContent = `Closest matching text for meaning from ${program.name}: ${program.program_sentences}`;
+
+            const userToneSentences = document.createElement('p');
+            userToneSentences.textContent = `You said: ${program.user_tone_sentences}`;
+
+            const programToneSentences = document.createElement('p');
+            programToneSentences.textContent = `Closest matching text for tone from ${program.name}: ${program.program_tone_sentences}`;
+
+            // Append all elements to the program card
+            programCard.appendChild(nameElement);
+            programCard.appendChild(urlElement);
+            programCard.appendChild(scoreElement);
+            programCard.appendChild(priceElement);
+            programCard.appendChild(refundElement);
+            programCard.appendChild(aidElement);
+            programCard.appendChild(coachingElement);
+            programCard.appendChild(communityElement);
+            programCard.appendChild(forumElement);
+            programCard.appendChild(descriptionElement);
+            programCard.appendChild(userSentences);
+            programCard.appendChild(programSentences);
+            programCard.appendChild(userToneSentences);
+            programCard.appendChild(programToneSentences);
+            
+            
+            // Add the program card to the list
+            programsListElement.appendChild(programCard);
+          });
+        }
+        
+        // Initial display
+        document.addEventListener('DOMContentLoaded', displayPrograms());
+        
+        // Add event listener to the filter button
+        document.getElementById('apply-filters').addEventListener('click', displayPrograms);
+    
+  </script>
 </body>
 </html>

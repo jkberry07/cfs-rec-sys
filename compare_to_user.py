@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[275]:
 
 
 from Programs import Program, get_semantic_embedding, get_tone_embedding
@@ -12,7 +11,6 @@ import tensorflow as tf
 import time
 
 
-# In[252]:
 
 
 with open('program_list.pkl', 'rb') as file:
@@ -20,28 +18,6 @@ with open('program_list.pkl', 'rb') as file:
 
 N_progs = len(program_list)
 N_similarities = 5 #How many similarity scores to use in averaging
-
-octavia_spencer_answers = [
-    "I’m proudest of the fact that I didn’t give up. This industry can be tough—life can be even tougher—but I stayed the course, trusted God, and trusted myself. I’m proud that I’ve been able to tell stories that matter, stories that shine a light on the overlooked and the underestimated. And I’m proud that I can be a source of encouragement to anyone who’s ever felt unseen.",
-    
-    "Integrity, empathy, and faith. I try to approach everything I do with a heart of compassion and a sense of responsibility. I ask myself: Is this true to who I am? Will it help somebody? Will I be proud of this later? If the answer is yes, I step forward with confidence.",
-    
-    "I admire people who are kind even when no one’s watching. People who listen more than they talk, and who act with grace under pressure. I admire quiet strength. The kind that doesn’t have to prove itself—it just shows up, does the work, and uplifts everyone in the room.",
-    
-    "To love, to serve, and to grow. I believe we’re all here to make this world a little brighter for each other. Life isn’t about perfection—it’s about progress. About showing up with your whole heart, learning from your mistakes, and doing what you can to leave a positive mark.",
-    
-    "I remember sitting around the table with my family, eating, laughing, telling stories, and just feeling that warmth. We didn’t have everything, but we had each other—and that was enough. That sense of belonging, of being seen and loved, is something I carry with me always.",
-    
-    "With humility. Growth requires you to admit you don’t know everything—and that’s okay. I read, I listen, I surround myself with people who challenge and support me. I take time to reflect. And I remind myself that becoming your best self isn’t a destination—it’s a lifelong journey.",
-    
-    "Happiness, to me, is peace. It’s being able to look in the mirror and feel proud of who you are—not just what you’ve done. It’s laughter with friends, a quiet moment in the middle of chaos, or using your voice to uplift someone else. It’s knowing that you’re aligned with your purpose.",
-    
-    "Life has taught me that your worth isn’t defined by anyone else’s opinion. That setbacks can be setups for something greater. That kindness isn’t weakness. That standing in your truth may not always be easy, but it’s always worth it. And above all, that we’re not here to compete—we’re here to connect."
-]
-octavia_spencer_qs = [0,1,2,3,4,5,6,7]
-
-
-# In[385]:
 
 
 def split_user_text(answers, q_list):
@@ -54,8 +30,6 @@ def split_user_text(answers, q_list):
         user_text.extend(ans_split)
     return user_text, q_indx
 
-
-# In[281]:
 
 
 def compare_user_prog(user_text):
