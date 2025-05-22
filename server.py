@@ -91,25 +91,15 @@ def recommendations():
 
     ranked_programs_json = json.dumps(ranked_programs)
 
-    # Create filter preferences
-    filters = {
-        'max_price': max_price,
-        'refund': refund,
-        'financial_aid': financial_aid,
-        'coaching': coaching,
-        'community': community,
-        'forum': forum
-    }
-
     # Build and return the HTML with the recommendations
     return render_template('recommendations.html', 
                           ranked_programs=ranked_programs_json,
-                          max_price = max_price,
-                          refund=refund,
-                          financial_aid = financial_aid,
-                          coaching=coaching,
-                          community=community,
-                          forum=forum,
+                          max_price_survey = max_price,
+                          refund_survey=refund,
+                          financial_aid_survey = financial_aid,
+                          coaching_survey=coaching,
+                          community_survey=community,
+                          forum_survey=forum,
                           version=time.time())
 
 
