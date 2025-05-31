@@ -36,7 +36,7 @@ def contact():
 def my_story():
     return render_template('my-story.html')
 
-@app.route('/what-is-brain-retraining', methods=['GET'])
+@app.route('/brain-retraining', methods=['GET'])
 def what_is_brain_retraining():
     return render_template('brain-retraining.html')
 

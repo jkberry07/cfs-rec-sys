@@ -3,8 +3,7 @@
 
 
 
-from Programs import Program, get_semantic_embedding, get_tone_embedding
-from WebScrapeText import split_sent
+from Programs import Program, get_semantic_embedding, get_tone_embedding, split_sent
 import pickle
 import numpy as np
 import tensorflow as tf

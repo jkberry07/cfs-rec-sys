@@ -7,23 +7,8 @@
   <link rel="stylesheet" href="/static/styles.css">
   <style>
   
-    .program-title {
-      color: var(--primary-green);
-      font-size: 1.5em;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
 
-    .score-badge {
-      display: inline-block;
-      background: linear-gradient(to right, var(--primary-green), var(--primary-blue));
-      color: white;
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-weight: bold;
-      margin-left: 10px;
-      font-size: 0.9em;
-    }
+
     
     .program-description {
       color: var(--dark-gray);
@@ -242,8 +227,14 @@
         <div id="programs-list"></div>
     </div>
     
-    <a href="survey.html" class="back-link">← Back to Survey</a>
+    <p>If you notice any inaccuracies in the information provided here, please <a href="/contact" style="color: var(--primary-green);">let me know!</a></p>
+
+    <a href="/survey" class="back-link">← Back to Survey</a>
   </div>
+
+  <footer>
+        <p>Disclaimer: The content in and throughout this website is for informational and educational purposes only, and is not a substitute for medical diagnosis, treatment or advice.</p>
+    </footer>
   
   
   <script>
@@ -292,22 +283,25 @@
             const programCard = document.createElement('div');
             programCard.className = 'program-card';
             
+            const nameScoreContainer = document.createElement('div');
+            nameScoreContainer.className = 'program-name-score-container';
 
-            const nameElement = document.createElement('h3');
+            const nameElement = document.createElement('h2');
             nameElement.className = 'program-title';
             nameElement.textContent = program.name;
             
             const scoreElement = document.createElement('div');
             scoreElement.className = 'program-score';
-            scoreElement.style.border = '1px solid #000';
-            scoreElement.style.padding = '2px 6px';
-            scoreElement.style.display = 'inline-block';
-            scoreElement.textContent = `${program.score}`;
+            scoreElement.textContent = `Score: ${program.score}`;
+
+            nameScoreContainer.appendChild(nameElement);
+            nameScoreContainer.appendChild(scoreElement);
 
             const urlElement = document.createElement('a');
             urlElement.href = program.url;
             urlElement.textContent = program.url;
             urlElement.target = '_blank';
+            urlElement.style = 'color: var(--primary-green);'
 
             const priceElement = document.createElement('div');
             priceElement.className = 'program-price';
@@ -351,23 +345,74 @@
             // Create description
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = "";
+
+            // Sentence matches section
+            const sentenceMatchesElement = document.createElement('div');
+            sentenceMatchesElement.className = 'sentence-matches';
+
+            const meaningHeader = document.createElement('div');
+            meaningHeader.className = 'match-type-header';
+            meaningHeader.textContent = 'Sentence Matches for Meaning';
+            sentenceMatchesElement.appendChild(meaningHeader);
+
+            // Display each meaning sentence pair (arrays are already available)
+            for (let i = 0; i < Math.min(program.user_sentences.length, program.program_sentences.length, 3); i++) {
+                const meaningMatchPair = document.createElement('div');
+                meaningMatchPair.className = 'match-pair';
+                
+                const userMeaningDiv = document.createElement('div');
+                userMeaningDiv.className = 'user-sentence';
+                userMeaningDiv.innerHTML = `
+                    <div class="sentence-label">You wrote (${i + 1}):</div>
+                    <div class="sentence-text">"${program.user_sentences[i]}"</div>
+                `;
+                
+                const programMeaningDiv = document.createElement('div');
+                programMeaningDiv.className = 'program-sentence';
+                programMeaningDiv.innerHTML = `
+                    <div class="sentence-label">Closest matching sentences for meaning from ${program.name} (${i + 1}):</div>
+                    <div class="sentence-text">"${program.program_sentences[i]}"</div>
+                `;
+                
+                meaningMatchPair.appendChild(userMeaningDiv);
+                meaningMatchPair.appendChild(programMeaningDiv);
+                sentenceMatchesElement.appendChild(meaningMatchPair);
+            }
+
+            // Tone match section
+            const toneHeader = document.createElement('div');
+            toneHeader.className = 'match-type-header';
+            toneHeader.textContent = 'Sentence Matches for Tone';
+            sentenceMatchesElement.appendChild(toneHeader);
+
+            // Display each tone sentence pair (arrays are already available)
+            for (let i = 0; i < Math.min(program.user_tone_sentences.length, program.program_tone_sentences.length, 3); i++) {
+                const toneMatchPair = document.createElement('div');
+                toneMatchPair.className = 'match-pair';
+                
+                const userToneDiv = document.createElement('div');
+                userToneDiv.className = 'user-sentence';
+                userToneDiv.innerHTML = `
+                    <div class="sentence-label">You wrote (${i + 1}):</div>
+                    <div class="sentence-text">"${program.user_tone_sentences[i]}"</div>
+                `;
+                
+                const programToneDiv = document.createElement('div');
+                programToneDiv.className = 'program-sentence';
+                programToneDiv.innerHTML = `
+                    <div class="sentence-label">Closest matching sentences for tone from ${program.name} (${i + 1}):</div>
+                    <div class="sentence-text">"${program.program_tone_sentences[i]}"</div>
+                `;
+                
+                toneMatchPair.appendChild(userToneDiv);
+                toneMatchPair.appendChild(programToneDiv);
+                sentenceMatchesElement.appendChild(toneMatchPair);
+            }
             
-            const userSentences = document.createElement('p');
-            userSentences.textContent = `You said: ${program.user_sentences}`;
-
-            const programSentences = document.createElement('p');
-            programSentences.textContent = `Closest matching text for meaning from ${program.name}: ${program.program_sentences}`;
-
-            const userToneSentences = document.createElement('p');
-            userToneSentences.textContent = `You said: ${program.user_tone_sentences}`;
-
-            const programToneSentences = document.createElement('p');
-            programToneSentences.textContent = `Closest matching text for tone from ${program.name}: ${program.program_tone_sentences}`;
-
+            
             // Append all elements to the program card
-            programCard.appendChild(nameElement);
+            programCard.appendChild(nameScoreContainer);
             programCard.appendChild(urlElement);
-            programCard.appendChild(scoreElement);
             programCard.appendChild(priceElement);
             programCard.appendChild(refundElement);
             programCard.appendChild(aidElement);
@@ -375,10 +420,7 @@
             programCard.appendChild(communityElement);
             programCard.appendChild(forumElement);
             programCard.appendChild(descriptionElement);
-            programCard.appendChild(userSentences);
-            programCard.appendChild(programSentences);
-            programCard.appendChild(userToneSentences);
-            programCard.appendChild(programToneSentences);
+            programCard.appendChild(sentenceMatchesElement);
             
             
             // Add the program card to the list

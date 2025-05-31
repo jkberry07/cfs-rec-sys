@@ -1,5 +1,6 @@
 #Define the Program class
 import json
+import nltk
 class Program:
     """Class to hold information about each program"""
     def __init__(self,name,description = [],url = [],price = [],pricing_notes = [],discount = [],refundable = [],coaching = [],community = [],forum = [],text = []):
@@ -77,3 +78,7 @@ def get_tone_embedding(text):
     weights[1:] = 1/(2*(N_tokens-1))
     avg_embedding = sum(weights[i]*last_hidden_state[:,i,:] for i in range(N_tokens)).squeeze()
     return avg_embedding
+
+def split_sent(text):
+    sentences = nltk.sent_tokenize(text)
+    return sentences
