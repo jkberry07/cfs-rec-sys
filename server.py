@@ -105,5 +105,6 @@ def recommendations():
 
 # Start the server
 if __name__ == '__main__':
+    host = os.environ.get('HOST', 'localhost')
     port = int(os.environ.get('PORT', 8080))
-    app.run(port=port)
+    app.run(host=host, port=port)
