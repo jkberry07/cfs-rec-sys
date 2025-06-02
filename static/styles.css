@@ -316,7 +316,7 @@ button:hover {
 
 .program-card:hover {
   transform: none;
-  background-color: #ffffff;
+  background-color: #cfecd8;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
