@@ -6,7 +6,6 @@
 from Programs import Program, get_semantic_embedding, get_tone_embedding, split_sent
 import pickle
 import numpy as np
-import tensorflow as tf
 import time
 
 
@@ -29,7 +28,8 @@ def split_user_text(answers, q_list):
         user_text.extend(ans_split)
     return user_text, q_indx
 
-
+def cosine_sim(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 def compare_user_prog(user_text):
     """Generate embeddings for user text, compare to program text, return scores and indices for the top 5 program sentence matches for each program for each user sentence."""
@@ -47,12 +47,10 @@ def compare_user_prog(user_text):
             prog_sem_similarities = np.zeros(len(prog.text))
             prog_tone_similarities = np.zeros(len(prog.text))
             for j in range(len(prog.text)): #for the jth program sentence
-                prog_sem_similarities[j] = -tf.keras.losses.cosine_similarity(
-                    user_sem_embeddings[i],prog.semantic_embeddings[j]) #calculate similarity (flip the sign bec it's defined a negative for use as a loss in tensorflow
-                prog_tone_similarities[j] = -tf.keras.losses.cosine_similarity(
-                    user_tone_embeddings[i],prog.tone_embeddings[j])
-            indices_sem = tf.argsort(prog_sem_similarities, direction = 'DESCENDING') #sort by similarity
-            indices_tone = tf.argsort(prog_tone_similarities, direction = 'DESCENDING') #sort by similarity
+                prog_sem_similarities[j] = cosine_sim(user_sem_embeddings[i],prog.semantic_embeddings[j]) #calculate similarity (flip the sign bec it's defined a negative for use as a loss in tensorflow
+                prog_tone_similarities[j] = cosine_sim(user_tone_embeddings[i],prog.tone_embeddings[j])
+            indices_sem = np.argsort(prog_sem_similarities)[::-1] #sort by similarity
+            indices_tone = np.argsort(prog_tone_similarities)[::-1] #sort by similarity
             top_sem_similarities_indxs[p,i,:] = indices_sem[:N_similarities] #store only the top N most similar program sentences
             top_sem_similarities_scores[p,i,:] = [prog_sem_similarities[indx] for indx in indices_sem[:N_similarities]] #pull out the scores for the top N most similar
             top_tone_similarities_indxs[p,i,:] = indices_tone[:N_similarities] #store only the top N most similar
@@ -76,7 +74,7 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         flat_tone_scores = toptone_score[p].flatten()
         flat_tone_indx = toptone_indx[p].flatten()
         
-        Topsem_indx = tf.argsort(flat_sem_scores,direction='DESCENDING')[:10].numpy() #get indices of the top ten scores
+        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:10] #get indices of the top ten scores
         topsem_scores = [flat_sem_scores[indx] for indx in Topsem_indx] #get the top ten scores
         topsem_sent_indx = [int(flat_sem_indx[indx]) for indx in Topsem_indx] #get the indices for the top ten sentences
         sem_sentences = [program_list[p].text[indx] for indx in topsem_sent_indx] #get the top ten sentences
@@ -84,7 +82,7 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         user_sem_sentences = [UserText[indx] for indx in user_sem_indx]
         q_sem_indx = [q_indx[indx] for indx in user_sem_indx]
         
-        Toptone_indx = tf.argsort(flat_tone_scores,direction='DESCENDING')[:10].numpy()
+        Toptone_indx = np.argsort(flat_tone_scores)[::-1][:10]
         toptone_scores = [flat_tone_scores[indx] for indx in Toptone_indx] #get the top ten scores
         toptone_sent_indx = [int(flat_tone_indx[indx]) for indx in Toptone_indx] #get the indices for the top ten sentences
         tone_sentences = [program_list[p].text[indx] for indx in toptone_sent_indx] #get the top ten sentences
@@ -108,8 +106,7 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         
         summary['Overall Score'].append(overall_score)
         
-    top_indx = tf.argsort(summary['Overall Score'],direction='DESCENDING')
-    top_indx = top_indx._numpy()
+    top_indx = np.argsort(summary['Overall Score'])[::-1]
 
     return summary, top_indx
 
