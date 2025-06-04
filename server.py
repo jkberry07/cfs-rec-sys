@@ -108,12 +108,3 @@ def recommendations():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 7000))
     app.run(host='0.0.0.0', port=port)
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        nltk.download('punkt')
-
-    try:
-        nltk.data.find('tokenizers/punkt_tab')
-    except LookupError:
-        nltk.download('punkt_tab')
