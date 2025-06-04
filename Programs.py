@@ -102,5 +102,9 @@ def get_tone_embedding(text):
 
 
 def split_sent(text):
+    try:
+        nltk.data.find('tokenizers/punkt_tab')
+    except LookupError:
+        nltk.download('punkt_tab')
     sentences = nltk.sent_tokenize(text)
     return sentences
