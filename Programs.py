@@ -51,11 +51,11 @@ from optimum.onnxruntime import ORTModelForFeatureExtraction
 
 
 # Load the MPNet model for content understanding
-semantic_model = ORTModelForFeatureExtraction.from_pretrained("onnx/mpnet")
+semantic_model = ORTModelForFeatureExtraction.from_pretrained("onnx/mpnet_quantized")
 semantic_tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-mpnet-base-v2")
 # Load the RoBERTa model for tone detection
 tone_tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-emotion")
-tone_model = ORTModelForFeatureExtraction.from_pretrained("onnx/emotion")
+tone_model = ORTModelForFeatureExtraction.from_pretrained("onnx/emotion_quantized")
 
 def get_semantic_embedding(text):
     inputs = semantic_tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
