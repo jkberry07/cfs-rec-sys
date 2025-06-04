@@ -7,6 +7,7 @@ from Programs import Program, get_semantic_embedding, get_tone_embedding, split_
 import pickle
 import numpy as np
 import time
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 
@@ -43,12 +44,14 @@ def compare_user_prog(user_text):
     top_tone_similarities_scores = np.zeros((N_progs,N_user_embeddings,N_similarities))# score of the top N most similar program sentences to each user sentence
     for p in range(N_progs):
         prog = program_list[p]
+        prog_sem_matrix = np.array(prog.semantic_embeddings)  # (n_prog_sentences, 768)
+        prog_tone_matrix = np.array(prog.tone_embeddings)    # (n_prog_sentences, 768)
         for i in range(N_user_embeddings): #for the ith user sentence
-            prog_sem_similarities = np.zeros(len(prog.text))
-            prog_tone_similarities = np.zeros(len(prog.text))
-            for j in range(len(prog.text)): #for the jth program sentence
-                prog_sem_similarities[j] = cosine_sim(user_sem_embeddings[i],prog.semantic_embeddings[j]) #calculate similarity (flip the sign bec it's defined a negative for use as a loss in tensorflow
-                prog_tone_similarities[j] = cosine_sim(user_tone_embeddings[i],prog.tone_embeddings[j])
+            user_sem = user_sem_embeddings[i].reshape(1, -1)
+            user_tone = user_tone_embeddings[i].reshape(1, -1) #make them matrices for sklearn
+            prog_sem_similarities = cosine_similarity(user_sem, prog_sem_matrix)[0]
+            prog_tone_similarities = cosine_similarity(user_tone, prog_tone_matrix)[0]
+            
             indices_sem = np.argsort(prog_sem_similarities)[::-1] #sort by similarity
             indices_tone = np.argsort(prog_tone_similarities)[::-1] #sort by similarity
             top_sem_similarities_indxs[p,i,:] = indices_sem[:N_similarities] #store only the top N most similar program sentences
