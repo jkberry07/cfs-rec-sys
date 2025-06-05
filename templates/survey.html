@@ -195,6 +195,30 @@
         });
       });
     });
+    // Handle page visibility change (detect when coming back from browser back button)
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && formSubmitted) {
+          // Page became visible and form was previously submitted
+          // Remove any loading overlays
+          const overlay = document.querySelector('.loading-overlay');
+          if (overlay) {
+            overlay.remove();
+          }
+          formSubmitted = false;
+        }
+      });
+      
+      // Handle pageshow event (fires when page is loaded from cache)
+      window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+          // Page was loaded from cache (browser back button)
+          const overlay = document.querySelector('.loading-overlay');
+          if (overlay) {
+            overlay.remove();
+          }
+          formSubmitted = false;
+        }
+      });
   </script>
 
 <script>
@@ -236,6 +260,14 @@
         spinnerContainer.appendChild(loadingText);
         overlay.appendChild(spinnerContainer);
         document.body.appendChild(overlay);
+
+        // Set a timeout to remove overlay if something goes wrong
+          setTimeout(function() {
+            if (overlay && overlay.parentNode) {
+              overlay.remove();
+              formSubmitted = false;
+            }
+          }, 30000); // 30 second timeout
       });
     }
   });
