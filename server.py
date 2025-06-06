@@ -103,9 +103,6 @@ def recommendations():
                           forum_survey=forum,
                           version=time.time())
 
-
-print("Hello")
-
 # Start the server
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 7000))
