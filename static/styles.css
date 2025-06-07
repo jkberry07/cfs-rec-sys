@@ -348,6 +348,7 @@ button:hover {
   transition: transform 0.2s;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .program-score {
