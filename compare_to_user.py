@@ -16,7 +16,9 @@ with open('program_list.pkl', 'rb') as file:
     program_list = pickle.load(file)
 
 N_progs = len(program_list)
-N_similarities = 5 #How many similarity scores to use in averaging
+N_similarities = 5 #For each user sentence, how many similarity scores to pull out for comparison to other user sentences scores
+Navg_sem = 5 #how many sentence similarities to average over when calculating the semantic scores
+Navg_tone = 10 #how many sentence similarities to average over when calculating the tone scores
 
 
 def split_user_text(answers, q_list):
@@ -77,29 +79,31 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         flat_tone_scores = toptone_score[p].flatten()
         flat_tone_indx = toptone_indx[p].flatten()
         
-        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:10] #get indices of the top ten scores
-        topsem_scores = [flat_sem_scores[indx] for indx in Topsem_indx] #get the top ten scores
+        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:Navg_sem] #get indices of the top Navg scores
+        topsem_scores = [flat_sem_scores[indx] for indx in Topsem_indx] #get the top Navg scores
         topsem_sent_indx = [int(flat_sem_indx[indx]) for indx in Topsem_indx] #get the indices for the top ten sentences
         sem_sentences = [program_list[p].text[indx] for indx in topsem_sent_indx] #get the top ten sentences
         user_sem_indx = np.floor([indx/N_similarities for indx in Topsem_indx]).astype(int)
         user_sem_sentences = [UserText[indx] for indx in user_sem_indx]
         q_sem_indx = [q_indx[indx] for indx in user_sem_indx]
         
-        Toptone_indx = np.argsort(flat_tone_scores)[::-1][:10]
-        toptone_scores = [flat_tone_scores[indx] for indx in Toptone_indx] #get the top ten scores
-        toptone_sent_indx = [int(flat_tone_indx[indx]) for indx in Toptone_indx] #get the indices for the top ten sentences
+        Toptone_indx = np.argsort(flat_tone_scores)[::-1][:Navg_tone]
+        toptone_scores = [flat_tone_scores[indx] for indx in Toptone_indx] #get the top Navg scores
+        toptone_sent_indx = [int(flat_tone_indx[indx]) for indx in Toptone_indx] #get the indices for the top Navg sentences
         tone_sentences = [program_list[p].text[indx] for indx in toptone_sent_indx] #get the top ten sentences
         user_tone_indx = np.floor([indx/N_similarities for indx in Toptone_indx]).astype(int)
         user_tone_sentences = [UserText[indx] for indx in user_tone_indx]
         q_tone_indx = [q_indx[indx] for indx in user_tone_indx]
         
-        overall_score = (0.5)*np.mean(topsem_scores) + (0.5)*np.mean(toptone_scores) #for now, equal weights to semantic and tone scores
+        sem_weights = np.array([.3,.25,.2,.15,.1])
+        sem_score = np.sum(sem_weights*topsem_scores)
+        overall_score = (0.5)*sem_score + (0.5)*np.mean(toptone_scores) #for now, equal weights to semantic and tone scores
         
         summary['Semantic Sentences'].append(sem_sentences)
         summary['User Semantic Sentences'].append(user_sem_sentences)
         summary['Semantic Questions'].append(q_sem_indx)
         summary['Semantic Scores'].append(topsem_scores)
-        summary['Avg Semantic Score'].append(np.mean(topsem_scores))
+        summary['Avg Semantic Score'].append(sem_score)
         
         summary['Tone Sentences'].append(tone_sentences)
         summary['User Tone Sentences'].append(user_tone_sentences)

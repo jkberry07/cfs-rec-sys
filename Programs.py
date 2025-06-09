@@ -81,13 +81,13 @@ def get_tone_embedding(text):
     attention_mask = inputs['attention_mask']
     # Only consider non-padded tokens
     seq_length = attention_mask.sum(dim=1).item()  # Actual sequence length
-    
-    #we're going to take a weighted average of the last hidden layer, 50% to the CLS token, and the last 50% distributed among the rest
+    print(seq_length)
+    #Initially took a weighted average of the last hidden layer, 50% to the CLS token, and the last 50% distributed among the rest, but changed to equal weights
     # Create weights only for actual tokens (not padding)
     weights = np.zeros(seq_length)
-    weights[0] = 0.5  # CLS token gets 50%
+    weights[0] = 1/seq_length  # Can modify how much weight the CLS token gets, but didn't seem to make much diff.
     if seq_length > 1:
-        weights[1:] = 1/(2*(seq_length-1))  # Remaining tokens share the other 50%
+        weights[1:] = (1-weights[0])/(seq_length-1)  # Remaining tokens share the rest of the weight
     full_weights = torch.zeros(last_hidden_state.shape[1])
     full_weights[:seq_length] = torch.tensor(weights, dtype=full_weights.dtype)
     
