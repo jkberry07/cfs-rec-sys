@@ -178,5 +178,7 @@ cython_debug/
 onnx/emotion
 onnx/mpnet
 *.onnx
+onnx
+onnx-models.zip
 
 testing/
