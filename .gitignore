@@ -174,8 +174,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-#Ignore full ONNX models (only track the quantized ones)
+#Ignore all the onnx models
 onnx/emotion
 onnx/mpnet
+*.onnx
 
 testing/
