@@ -2,7 +2,7 @@
 import os
 import sys
 from flask import Flask, render_template, request
-from Programs import Program
+from Programs import Program, download_models
 import pickle
 from compare_to_user import generate_recommendation
 import time
@@ -15,6 +15,8 @@ app = Flask(__name__)
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True #make sure templates are reloaded when changed
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 #disable caching of static files
+
+download_models()
 
 # Define a simple route
 @app.route('/', methods=['GET'])
