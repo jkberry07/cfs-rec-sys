@@ -95,7 +95,7 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         user_tone_sentences = [UserText[indx] for indx in user_tone_indx]
         q_tone_indx = [q_indx[indx] for indx in user_tone_indx]
         
-        sem_weights = np.array([.3,.25,.2,.15,.1])
+        sem_weights = np.array([.3,.25,.2,.15,.1]) #weight the closest match the most.
         sem_score = np.sum(sem_weights*topsem_scores)
         overall_score = (0.5)*sem_score + (0.5)*np.mean(toptone_scores) #for now, equal weights to semantic and tone scores
         
