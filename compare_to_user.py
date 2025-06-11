@@ -38,7 +38,7 @@ def compare_user_prog(user_text):
     """Generate embeddings for user text, compare to program text, return scores and indices for the top 5 program sentence matches for each program for each user sentence."""
     user_sem_embeddings = [get_semantic_embedding(text) for text in user_text]
     user_tone_embeddings = [get_tone_embedding(text) for text in user_text]
-    print(time.time())
+    #print(time.time())
     N_user_embeddings = len(user_sem_embeddings)
     top_sem_similarities_indxs = np.zeros((N_progs,N_user_embeddings,N_similarities)) # index of the top N most similar program sentences to each user sentence
     top_sem_similarities_scores = np.zeros((N_progs,N_user_embeddings,N_similarities))# score of the top N most similar program sentences to each user sentence
@@ -60,7 +60,7 @@ def compare_user_prog(user_text):
             top_sem_similarities_scores[p,i,:] = [prog_sem_similarities[indx] for indx in indices_sem[:N_similarities]] #pull out the scores for the top N most similar
             top_tone_similarities_indxs[p,i,:] = indices_tone[:N_similarities] #store only the top N most similar
             top_tone_similarities_scores[p,i,:] = [prog_tone_similarities[indx] for indx in indices_tone[:N_similarities]] #pull out the scores for the top N most similar
-    print(time.time())
+    #print(time.time())
     return top_sem_similarities_indxs, top_sem_similarities_scores,top_tone_similarities_indxs, top_tone_similarities_scores
 
 
@@ -125,20 +125,3 @@ def generate_recommendation(user_text,q_list):
     summary, top_indx = rank_progs(UserText, q_indx, sem_indx,sem_scores, tone_indx, tone_scores)
     
     return summary, top_indx
-
-    
-# for i in top_indx[:3]:
-#     print(f"{summary['Name'][i]}, (Overall Score {summary['Overall Score'][i]:.4f})")
-#     print("-"*50)
-#     print(f"Average Semantic Score: {summary['Avg Semantic Score'][i]:.4f}")
-#     for j in range(len(summary['Semantic Scores'][i])):
-#         print(f"PROGRAM SENTENCE: {summary['Semantic Sentences'][i][j]}")
-#         print(f"USER SENTENCE: {summary['User Semantic Sentences'][i][j]}")
-#         print(f"SEMANTIC SCORE: {summary['Semantic Scores'][i][j]:.4f}")
-#     print(f"\nAverage Tone Score: {summary['Avg Tone Score'][i]:.4f}")
-#     for j in range(len(summary['Tone Scores'][i])):
-#         print(f"PROGRAM SENTENCE: {summary['Tone Sentences'][i][j]}")
-#         print(f"USER SENTENCE: {summary['User Tone Sentences'][i][j]}")
-#         print(f"TONE SCORE: {summary['Tone Scores'][i][j]:.4f}")
-#     print('\n\n')
-    
