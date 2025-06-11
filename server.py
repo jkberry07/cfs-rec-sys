@@ -2,48 +2,11 @@
 import os
 import sys
 from flask import Flask, render_template, request
-import requests
-import zipfile
 import os
-#need to download models before importing anything that depends on them
-def download_models():
-    # Check if models already exist
-    emotion_model = "./onnx/emotion_quantized"
-    mpnet_model = "./onnx/mpnet_quantized"
-    
-    if os.path.exists(emotion_model) and os.path.exists(mpnet_model):
-        print("Models already exist, skipping download")
-        return
-    
-    print("Downloading models from GitHub...")
-    
-    # Your release download URL
-    url = "https://github.com/jkberry07/cfs-rec-sys/releases/download/models-v0.1.0/onnx-models.zip"
-    try:
-        response = requests.get(url, timeout=300)
-        response.raise_for_status()
-        
-        # Download zip
-        with open("onnx-models.zip", "wb") as f:
-            f.write(response.content)
-        
-        # Extract - this should recreate the onnx/ folder structure
-        with zipfile.ZipFile("onnx-models.zip", 'r') as zip_ref:
-            zip_ref.extractall("./")
-        
-        os.remove("onnx-models.zip")
-        print("Models downloaded successfully!")
-        
-        # Verify the structure
-        if os.path.exists(emotion_model) and os.path.exists(mpnet_model):
-            print("✓ Both model folders found")
-        else:
-            print("⚠️ Warning: Expected folder structure not found")
-            
-    except Exception as e:
-        print(f"Error downloading models: {e}")
-        raise
+from deploy_setup import download_models, init_db, log_survey_data
+from dotenv import load_dotenv
 
+load_dotenv() #get environment variables on local machine.
 
 # Create Flask app
 app = Flask(__name__)
@@ -51,12 +14,14 @@ app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True #make sure templates are reloaded when changed
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 #disable caching of static files
 
-download_models() #ensure models are downloaded before importing anything that depends on them
+download_models() #then ensure models are downloaded before importing anything that depends on them
 
 import pickle
 from compare_to_user import generate_recommendation
 import time
 import json
+
+
 
 # Define a simple route
 @app.route('/', methods=['GET'])
@@ -132,6 +97,17 @@ def recommendations():
             'program_tone_sentences': summary['Tone Sentences'][idx][:3],
         })
 
+    # Get top 5 programs for logging
+    top_5_programs = [
+        {
+            'name': ranked_programs[i]['name'],
+            'score': ranked_programs[i]['score']
+        }
+        for i in range(min(5, len(ranked_programs)))
+    ]
+
+    log_survey_data(questions, top_5_programs)
+
     ranked_programs_json = json.dumps(ranked_programs)
 
     # Build and return the HTML with the recommendations
@@ -147,5 +123,6 @@ def recommendations():
 
 # Start the server
 if __name__ == '__main__':
+    init_db()
     port = int(os.environ.get('PORT', 7000))
     app.run(host='0.0.0.0', port=port)
