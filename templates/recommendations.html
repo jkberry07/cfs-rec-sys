@@ -9,7 +9,7 @@
 <body>
   <header>
     <div class="wave-container">
-      <h1>Your Recommended Programs</h1>
+      <h1>ME/CFS Program Finder</h1>
       <p class="tagline"></p>
       <div class="wave"></div>
     </div>
@@ -165,41 +165,41 @@
 
             const priceElement = document.createElement('div');
             priceElement.className = 'program-price';
-            priceElement.textContent = `Price: $${program.price} (${program.pricing_notes})`;
+            priceElement.innerHTML = `<strong>Price:</strong> $${program.price} (${program.pricing_notes})`;
             
             const refundElement = document.createElement('p');
             if (program.refund_policy) {
-                refundElement.textContent = `Refund Policy: ${program.refund_policy}`;
+                refundElement.innerHTML = `<strong>Refund Policy:</strong> ${program.refund_policy}`;
             } else {
-                refundElement.textContent = `Refund Policy: No`;
+                refundElement.innerHTML = `<strong>Refund Policy:</strong> No`;
             }
             
             const aidElement = document.createElement('p');
             if (program.financial_aid) {
-                aidElement.innerHTML = `Possibility of Financial Aid: See <a href="${program.financial_aid}" target="_blank">${program.financial_aid}</a>`;
+                aidElement.innerHTML = `<strong>Possibility of Financial Aid:</strong> See <a href="${program.financial_aid}" target="_blank">${program.financial_aid}</a>`;
             } else {
-                aidElement.textContent = `Possibility of Financial Aid: No`;
+                aidElement.innerHTML = `<strong>Possibility of Financial Aid:</strong> No`;
             } 
 
             const coachingElement = document.createElement('p');
             if (program.coaching) {
-                coachingElement.textContent = `Coaching: ${program.coaching}`;
+                coachingElement.innerHTML = `<strong>Coaching:</strong> ${program.coaching}`;
             } else {
-                coachingElement.textContent = `Coaching: No`;
+                coachingElement.innerHTML = `<strong>Coaching:</strong> No`;
             }
             
             const communityElement = document.createElement('p');
             if (program.community) {
-                communityElement.textContent = `Community: ${program.community}`;
+                communityElement.innerHTML = `<strong>Community:</strong> ${program.community}`;
             } else {
-                communityElement.textContent = `Community: No`;
+                communityElement.innerHTML = `<strong>Community:</strong> No`;
             }
             
             const forumElement = document.createElement('p');
             if (program.forum) {
-                forumElement.textContent = `Forum: ${program.forum}`;
+                forumElement.innerHTML = `<strong>Forum:</strong> ${program.forum}`;
             } else {
-                forumElement.textContent = `Forum: No`;
+                forumElement.innerHTML = `<strong>Forum:</strong> No`;
             }
             
             // Create description

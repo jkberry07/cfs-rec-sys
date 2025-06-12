@@ -7,6 +7,7 @@ from deploy_setup import download_models, init_db, log_survey_data
 from dotenv import load_dotenv
 
 load_dotenv() #get environment variables on local machine.
+init_db() #initialize the database
 
 # Create Flask app
 app = Flask(__name__)
@@ -123,6 +124,5 @@ def recommendations():
 
 # Start the server
 if __name__ == '__main__':
-    init_db()
     port = int(os.environ.get('PORT', 7000))
     app.run(host='0.0.0.0', port=port)
