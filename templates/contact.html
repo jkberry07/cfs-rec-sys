@@ -34,6 +34,7 @@
     </section>
   </div>
     <div class="contact-container">
+      <div id="form-messages" style="display: none; padding: 10px; margin-bottom: 20px; border-radius: 5px;"></div>
       <form id="contact-form">
         <div class="form-group">
           <label for="name">Name:</label>
@@ -50,7 +51,7 @@
           <textarea id="message" name="message" rows="5" required></textarea>
         </div>
 
-        <button type="submit">Send Message</button>
+        <button id="submit-btn" type="submit">Send Message</button>
       </form>
     </div>
   </main>
@@ -59,5 +60,59 @@
       <p>Disclaimer: The content in and throughout this website is for informational and educational purposes only, and is not a substitute for medical diagnosis, treatment or advice.</p>
       <p><a href = "/privacy" style="color: var(--light-green);">Privacy Statement</a> | <a href = "/contact" style="color: var(--light-green);">Contact</a></p>
     </footer>
+
+  <script>
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submit-btn');
+        const messagesDiv = document.getElementById('form-messages');
+        
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        // Get form data
+        const formData = new FormData(this);
+        
+        // Send AJAX request
+        fetch('/contact', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            messagesDiv.style.display = 'block';
+            
+            if (data.success) {
+                messagesDiv.style.backgroundColor = '#d4edda';
+                messagesDiv.style.color = '#155724';
+                messagesDiv.style.borderColor = '#c3e6cb';
+                messagesDiv.textContent = data.message;
+                
+                // Clear form
+                document.getElementById('contact-form').reset();
+            } else {
+                messagesDiv.style.backgroundColor = '#f8d7da';
+                messagesDiv.style.color = '#721c24';
+                messagesDiv.style.borderColor = '#f5c6cb';
+                messagesDiv.textContent = data.message;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messagesDiv.style.display = 'block';
+            messagesDiv.style.backgroundColor = '#f8d7da';
+            messagesDiv.style.color = '#721c24';
+            messagesDiv.style.borderColor = '#f5c6cb';
+            messagesDiv.textContent = 'Sorry, there was an error sending your message. Please try again later.';
+        })
+        .finally(() => {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Message';
+        });
+    });
+  </script>
 </body>
 </html>

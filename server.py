@@ -1,8 +1,8 @@
 # server.py
 import os
 import sys
-from flask import Flask, render_template, request
-import os
+from flask import Flask, render_template, request, jsonify
+import requests
 from deploy_setup import download_models, init_db, log_survey_data
 from dotenv import load_dotenv
 
@@ -24,7 +24,6 @@ import json
 
 
 
-# Define a simple route
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
@@ -41,9 +40,51 @@ def about():
 def privacy():
     return render_template('privacy.html')
 
-@app.route('/contact', methods=['GET'])
+MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN')
+MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
+EMAIL = os.environ.get('EMAIL')
+
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
-    return render_template('contact.html')
+    if request.method == 'GET':
+        return render_template('contact.html')
+    
+    try:
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+        
+        # Send email via Mailgun
+        response = requests.post(
+            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+            auth=("api", MAILGUN_API_KEY),
+            data={
+                "from": f"Contact Form <mailgun@{MAILGUN_DOMAIN}>",
+                "to": [EMAIL],
+                "subject": f"Contact Form Submission from {name}",
+                "text": f"""
+                    New contact form submission:
+
+                    Name: {name}
+                    Email: {email}
+
+                    Message:
+                    {message}
+                                    """,
+                "h:Reply-To": email
+            }
+        )
+        
+        if response.status_code == 200:
+            return jsonify({'success': True, 'message': 'Thank you! Your message has been sent successfully.'})
+        else:
+            print(f"Mailgun error: {response.status_code} - {response.text}")
+            return jsonify({'success': False, 'message': 'Sorry, there was an error sending your message.'}), 500
+            
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return jsonify({'success': False, 'message': 'Sorry, there was an error sending your message.'}), 500
+
 
 @app.route('/my-story', methods=['GET'])
 def my_story():
