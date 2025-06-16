@@ -36,6 +36,10 @@ def start_survey():
 def about():
     return render_template('about.html')
 
+@app.route('/program-text-sources', methods=['GET'])
+def program_text_sources():
+    return render_template('program-text-sources.html')
+
 @app.route('/privacy', methods=['GET'])
 def privacy():
     return render_template('privacy.html')
