@@ -145,6 +145,7 @@ def recommendations():
             'program_sentences': summary['Semantic Sentences'][idx][:3],
             'user_tone_sentences': summary['User Tone Sentences'][idx][:3],
             'program_tone_sentences': summary['Tone Sentences'][idx][:3],
+            'display_sentences': summary['Display Sentences'][idx] #For simpler display of just the top 4 program sentences, 2 for semantics, 2 for tone
         })
 
     # Get top 5 programs for logging

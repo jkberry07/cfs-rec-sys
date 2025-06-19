@@ -67,21 +67,21 @@ def compare_user_prog(user_text):
 
 def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, toptone_score):
     """Calculate a score for each program by averaging the tone and semantic scores for its top 10 matching sentences, rank programs accordingly"""
-    summary = {'Name': [], 'Program Index': [],
+    summary = {'Name': [], 'Program Index': [], 'Display Sentences':[],
                'Semantic Sentences': [], 'User Semantic Sentences':[], 'Semantic Questions':[], 'Semantic Scores':[], 'Avg Semantic Score': [],
                'Tone Sentences':[], 'User Tone Sentences':[], 'Tone Questions':[], 'Tone Scores':[], 'Avg Tone Score': [],
                'Overall Score':[]}
     for p in range(N_progs): #for each program
         summary['Name'].append(program_list[p].name)
         
-        flat_sem_scores = topsem_score[p].flatten() #flatten the scores for sorting
+        flat_sem_scores = topsem_score[p].flatten() #flatten the scores for sorting (a 1D list Nuser_sentences times Nsimilarities long)
         flat_sem_indx = topsem_indx[p].flatten() #flatten the sentence indices for reference after sorting
         flat_tone_scores = toptone_score[p].flatten()
         flat_tone_indx = toptone_indx[p].flatten()
         
-        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:Navg_sem] #get indices of the top Navg scores
+        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:Navg_sem] #get indices of the top Navg scores in the scores list
         topsem_scores = [flat_sem_scores[indx] for indx in Topsem_indx] #get the top Navg scores
-        topsem_sent_indx = [int(flat_sem_indx[indx]) for indx in Topsem_indx] #get the indices for the top ten sentences
+        topsem_sent_indx = [int(flat_sem_indx[indx]) for indx in Topsem_indx] #get the indices for the top ten sentences using score indices
         sem_sentences = [program_list[p].text[indx] for indx in topsem_sent_indx] #get the top ten sentences
         user_sem_indx = np.floor([indx/N_similarities for indx in Topsem_indx]).astype(int)
         user_sem_sentences = [UserText[indx] for indx in user_sem_indx]
@@ -94,6 +94,24 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         user_tone_indx = np.floor([indx/N_similarities for indx in Toptone_indx]).astype(int)
         user_tone_sentences = [UserText[indx] for indx in user_tone_indx]
         q_tone_indx = [q_indx[indx] for indx in user_tone_indx]
+
+        #Display top 2 sentences for semantics and top 2 sentences for tone, ensuring no duplicates. Duplicates can arise if two user sentences matched best with the same program sentence
+        disp_sent = [sem_sentences[0]] # Insert top semantic sentence
+        sent = 1 #start comparisons with second semantic sentence
+        while len(disp_sent)<2: #stop once we have two semantic sentences
+            if sem_sentences[sent] not in disp_sent:
+                disp_sent.append(sem_sentences[sent])
+            sent = sent + 1
+            if sent==len(sem_sentences): #edge case, but stop if it can't find enough unique sentences.
+                break
+        #Now do it for tone sentences
+        sent = 0 #start with top tone sentence
+        while len(disp_sent)<4: #stop once we have 4 sentences overall
+            if tone_sentences[sent] not in disp_sent:
+                disp_sent.append(tone_sentences[sent])
+            sent = sent+1
+            if sent==len(tone_sentences):
+                break
         
         sem_weights = np.array([.3,.25,.2,.15,.1]) #weight the closest match the most.
         sem_score = np.sum(sem_weights*topsem_scores)
@@ -112,6 +130,7 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         summary['Avg Tone Score'].append(np.mean(toptone_scores))
         
         summary['Overall Score'].append(overall_score)
+        summary['Display Sentences'].append(disp_sent)
         
     top_indx = np.argsort(summary['Overall Score'])[::-1]
 

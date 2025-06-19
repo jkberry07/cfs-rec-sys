@@ -38,10 +38,10 @@
           
           <div class="filter-row">
               <div class="filter-group">
-                  <label for="max_price">Maximum Price ($)</label>
+                  <label for="max_price"><strong>Maximum Price</strong> ($)</label>
                   <input type="number" id="max_price" min="0" value="{{max_price_survey}}">
 
-                  <label for="display-count">Display Top</label>
+                  <label for="display-count"><strong>Display Top</strong></label>
                   <select id="display-count">
                       <option value="3">Top 3</option>
                       <option value="5">Top 5</option>
@@ -53,7 +53,7 @@
           
           <div class="filter-row">
               <div class="filter-group">
-                  <label>Program Features</label>
+                  <label><strong>Program Features</strong></label>
                   <div class="checkbox-group">
                       <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
                       <label for="refund-policy">Refund Policy</label>
@@ -76,7 +76,18 @@
                       <label for="community">Community Support</label>
                   </div>
               </div>
+              
           </div>
+          
+          <div class="filter-row">
+              <div class="filter-group">
+                <label><strong>More Display Options</strong></label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show_matches" value="show_matches">
+                    <label for="show_matches">Show Sentence Matches</label>
+                </div>
+              </div>
+            </div>
           
           <button id="apply-filters">Apply Filters</button>
        </div>
@@ -210,66 +221,92 @@
             descriptionElement.textContent = "";
 
             // Sentence matches section
-            const sentenceMatchesElement = document.createElement('div');
-            sentenceMatchesElement.className = 'sentence-matches';
+            const sentenceDisplayElement = document.createElement('div');
+            sentenceDisplayElement.className = 'sentence-display';
 
-            const meaningHeader = document.createElement('div');
-            meaningHeader.className = 'match-type-header';
-            meaningHeader.textContent = 'Sentence Matches for Meaning';
-            sentenceMatchesElement.appendChild(meaningHeader);
+            const showMatches = document.getElementById('show_matches').checked;
 
-            // Display each meaning sentence pair (arrays are already available)
-            for (let i = 0; i < Math.min(program.user_sentences.length, program.program_sentences.length, 3); i++) {
-                const meaningMatchPair = document.createElement('div');
-                meaningMatchPair.className = 'match-pair';
+            if (showMatches) {
+                const sentenceMatchesElement = document.createElement('div');
+                sentenceMatchesElement.className = 'sentence-matches';
                 
-                const userMeaningDiv = document.createElement('div');
-                userMeaningDiv.className = 'user-sentence';
-                userMeaningDiv.innerHTML = `
-                    <div class="sentence-label">You wrote (${i + 1}):</div>
-                    <div class="sentence-text">"${program.user_sentences[i]}"</div>
-                `;
-                
-                const programMeaningDiv = document.createElement('div');
-                programMeaningDiv.className = 'program-sentence';
-                programMeaningDiv.innerHTML = `
-                    <div class="sentence-label">Closest matching sentences for meaning from ${program.name} (${i + 1}):</div>
-                    <div class="sentence-text">"${program.program_sentences[i]}"</div>
-                `;
-                
-                meaningMatchPair.appendChild(userMeaningDiv);
-                meaningMatchPair.appendChild(programMeaningDiv);
-                sentenceMatchesElement.appendChild(meaningMatchPair);
-            }
+                const meaningHeader = document.createElement('div');
+                meaningHeader.className = 'match-type-header';
+                meaningHeader.textContent = 'Sentence Matches for Meaning';
+                sentenceMatchesElement.appendChild(meaningHeader);
 
-            // Tone match section
-            const toneHeader = document.createElement('div');
-            toneHeader.className = 'match-type-header';
-            toneHeader.textContent = 'Sentence Matches for Tone';
-            sentenceMatchesElement.appendChild(toneHeader);
+                // Display each meaning sentence pair (arrays are already available)
+                for (let i = 0; i < Math.min(program.user_sentences.length, program.program_sentences.length, 3); i++) {
+                    const meaningMatchPair = document.createElement('div');
+                    meaningMatchPair.className = 'match-pair';
+                    
+                    const userMeaningDiv = document.createElement('div');
+                    userMeaningDiv.className = 'user-sentence';
+                    userMeaningDiv.innerHTML = `
+                        ${i === 0 ? '<div class="sentence-label">You wrote:</div>' : ''}
+                        <div class="sentence-text">"${program.user_sentences[i]}"</div>
+                    `;
+                    
+                    const programMeaningDiv = document.createElement('div');
+                    programMeaningDiv.className = 'program-sentence';
+                    programMeaningDiv.innerHTML = `
+                        ${i === 0 ? `<div class="sentence-label">Closest matches from ${program.name}:</div>` : ''}
+                        <div class="sentence-text">"${program.program_sentences[i]}"</div>
+                    `;
+                    
+                    meaningMatchPair.appendChild(userMeaningDiv);
+                    meaningMatchPair.appendChild(programMeaningDiv);
+                    sentenceMatchesElement.appendChild(meaningMatchPair);
+                }
 
-            // Display each tone sentence pair (arrays are already available)
-            for (let i = 0; i < Math.min(program.user_tone_sentences.length, program.program_tone_sentences.length, 3); i++) {
-                const toneMatchPair = document.createElement('div');
-                toneMatchPair.className = 'match-pair';
+                // Tone match section
+                const toneHeader = document.createElement('div');
+                toneHeader.className = 'match-type-header';
+                toneHeader.textContent = 'Sentence Matches for Tone';
+                sentenceMatchesElement.appendChild(toneHeader);
+
+                // Display each tone sentence pair (arrays are already available)
+                for (let i = 0; i < Math.min(program.user_tone_sentences.length, program.program_tone_sentences.length, 3); i++) {
+                    const toneMatchPair = document.createElement('div');
+                    toneMatchPair.className = 'match-pair';
+                    
+                    const userToneDiv = document.createElement('div');
+                    userToneDiv.className = 'user-sentence';
+                    userToneDiv.innerHTML = `
+                        ${i === 0 ? '<div class="sentence-label">You wrote:</div>' : ''}
+                        <div class="sentence-text">"${program.user_tone_sentences[i]}"</div>
+                    `;
+                    
+                    const programToneDiv = document.createElement('div');
+                    programToneDiv.className = 'program-sentence';
+                    programToneDiv.innerHTML = `
+                        ${i === 0 ? `<div class="sentence-label">Closest matches from ${program.name}:</div>` : ''}
+                        <div class="sentence-text">"${program.program_tone_sentences[i]}"</div>
+                    `;
+                    
+                    toneMatchPair.appendChild(userToneDiv);
+                    toneMatchPair.appendChild(programToneDiv);
+                    sentenceMatchesElement.appendChild(toneMatchPair);
+                }
+                sentenceDisplayElement.appendChild(sentenceMatchesElement)
+            } else {
+                // Show simple top sentences
+                const topSentencesElement = document.createElement('div');
+                topSentencesElement.className = 'top-sentences';
                 
-                const userToneDiv = document.createElement('div');
-                userToneDiv.className = 'user-sentence';
-                userToneDiv.innerHTML = `
-                    <div class="sentence-label">You wrote (${i + 1}):</div>
-                    <div class="sentence-text">"${program.user_tone_sentences[i]}"</div>
-                `;
+                const sentencesHeader = document.createElement('div');
+                sentencesHeader.className = 'sentences-header';
+                sentencesHeader.textContent = `Some relevant sentences from ${program.name}:`;
+                topSentencesElement.appendChild(sentencesHeader);
                 
-                const programToneDiv = document.createElement('div');
-                programToneDiv.className = 'program-sentence';
-                programToneDiv.innerHTML = `
-                    <div class="sentence-label">Closest matching sentences for tone from ${program.name} (${i + 1}):</div>
-                    <div class="sentence-text">"${program.program_tone_sentences[i]}"</div>
-                `;
+                program.display_sentences.forEach((sentence, index) => {
+                    const sentenceDiv = document.createElement('div');
+                    sentenceDiv.className = 'display-sentence';
+                    sentenceDiv.innerHTML = `<div class="sentence-text"> "${sentence}"</div>`;
+                    topSentencesElement.appendChild(sentenceDiv);
+                });
                 
-                toneMatchPair.appendChild(userToneDiv);
-                toneMatchPair.appendChild(programToneDiv);
-                sentenceMatchesElement.appendChild(toneMatchPair);
+                sentenceDisplayElement.appendChild(topSentencesElement);
             }
             
             
@@ -283,7 +320,7 @@
             programCard.appendChild(communityElement);
             programCard.appendChild(forumElement);
             programCard.appendChild(descriptionElement);
-            programCard.appendChild(sentenceMatchesElement);
+            programCard.appendChild(sentenceDisplayElement);
             
             
             // Add the program card to the list
