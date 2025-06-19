@@ -465,7 +465,6 @@ footer {
 }
 
 
-
 .resources {
   background-color: var(--light-blue);
   padding: 2rem;
@@ -716,6 +715,40 @@ input:checked + .slider:before {
   margin: 15px 0 5px 0;
   padding-bottom: 4px;
   border-bottom: 2px solid var(--light-green);
+}
+
+.sentence-display {
+    margin: 10px 0;
+}
+
+.top-sentences {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-green);
+}
+
+.sentences-header {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--primary-green);
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--light-green);
+}
+
+.display-sentence {
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 4px;
+    border-left: 3px solid var(--light-green);
+}
+
+.display-sentence .sentence-text {
+    font-style: italic;
+    line-height: 1.25;
+    color: var(--dark-gray);
 }
 
 /* Responsive design for mobile */
