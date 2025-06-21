@@ -92,7 +92,7 @@
           <!-- Price Range -->
           <div class="filter-group">
             <label for="max-price">Maximum Price ($, USD):</label>
-            <input type="number" id="max-price" name="max-price" min="300" max="1000" step="10" value="0">
+            <input type="number" id="max-price" name="max-price" min="300" step="50" value="0">
           </div>
             
             <!-- Toggleable Filters -->
@@ -198,6 +198,21 @@
         });
       });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const maxPriceInput = document.getElementById('max-price');
+  
+    maxPriceInput.addEventListener('invalid', function(e) {
+      if (this.validity.rangeUnderflow) {
+       this.setCustomValidity('Max price must be at least 300');
+     } 
+    });
+  
+    // Clear custom validity when user starts typing again
+    maxPriceInput.addEventListener('input', function() {
+      this.setCustomValidity('');
+    });
+});
     // Handle page visibility change (detect when coming back from browser back button)
       document.addEventListener('visibilitychange', function() {
         if (!document.hidden && formSubmitted) {
@@ -239,9 +254,9 @@
         const question3 = document.getElementById('question3').value;
         const answer3 = document.getElementById('answer3').value.trim();
         
-        if (!question1 || !answer1 || !question2 || !answer2 || !question3 || !answer3) {
+        if ((!question1 || !answer1) && (!question2 || !answer2) && (!question3 || !answer3)) {
           e.preventDefault();
-          alert('Please select and answer all three questions before submitting.');
+          alert('Please select and answer at least one question before submitting.');
           return;
         }
         

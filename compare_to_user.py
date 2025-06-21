@@ -129,7 +129,7 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         summary['Tone Scores'].append(toptone_scores)
         summary['Avg Tone Score'].append(np.mean(toptone_scores))
         
-        summary['Overall Score'].append(overall_score)
+        summary['Overall Score'].append(overall_score*100) #rescale as percentage
         summary['Display Sentences'].append(disp_sent)
         
     top_indx = np.argsort(summary['Overall Score'])[::-1]
