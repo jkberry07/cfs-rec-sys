@@ -107,8 +107,8 @@ def recommendations():
     a2 = request.form.get('answer2')
     q3 = request.form.get('question3')
     a3 = request.form.get('answer3')
-    answers = [a1,a2,a3]
-    questions = [q1,q2,q3]
+    answers = [a for a in [a1, a2, a3] if a] #filter out None if the user didn't answer all 3
+    questions = [q for q in [q1, q2, q3] if q]
 
     max_price = request.form.get('max-price')
     refund = 'refund' in request.form
@@ -131,7 +131,7 @@ def recommendations():
         program = program_list[idx]
         ranked_programs.append({
             'name': program.name,
-            'score': int(100*summary['Overall Score'][idx]),
+            'score': int((summary['Overall Score'][idx]-40)*2.25 + 10), #original scores typically ranged from ~40-80, rescale to range from 10-100
             'url': program.url,
             'price': program.price,
             'pricing_notes': program.pricing_notes,

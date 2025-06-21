@@ -693,12 +693,38 @@ input:checked + .slider:before {
   border-left: 3px solid var(--primary-green);
 }
 
+.expand-button {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: background-color 0.2s;
+}
+
+.expand-button:hover {
+    background-color: var(--accent-blue);
+}
+
+.sentence-display.collapsed {
+    display: none;
+}
+
+.sentence-display {
+    display: block;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
 .sentence-label {
   font-weight: bold;
-  font-size: 0.85em;
+  font-size: 1em;
   color: var(--dark-gray);
   margin-bottom: 4px;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 

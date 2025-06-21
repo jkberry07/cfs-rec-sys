@@ -79,15 +79,6 @@
               
           </div>
           
-          <div class="filter-row">
-              <div class="filter-group">
-                <label><strong>More Display Options</strong></label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="show_matches" value="show_matches">
-                    <label for="show_matches">Show Sentence Matches</label>
-                </div>
-              </div>
-            </div>
           
           <button id="apply-filters">Apply Filters</button>
        </div>
@@ -215,100 +206,95 @@
             } else {
                 forumElement.innerHTML = `<strong>Forum:</strong> No`;
             }
+
+            const expandButton = document.createElement('button');
+            expandButton.className = 'expand-button';
+            expandButton.textContent = 'Show Sentence Matches';
+            expandButton.type = 'button';
             
             // Create description
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = "";
 
             // Sentence matches section
+            // Create sentence matches section (hidden by default)
             const sentenceDisplayElement = document.createElement('div');
-            sentenceDisplayElement.className = 'sentence-display';
+            sentenceDisplayElement.className = 'sentence-display collapsed';
 
-            const showMatches = document.getElementById('show_matches').checked;
+            const sentenceMatchesElement = document.createElement('div');
+            sentenceMatchesElement.className = 'sentence-matches';
 
-            if (showMatches) {
-                const sentenceMatchesElement = document.createElement('div');
-                sentenceMatchesElement.className = 'sentence-matches';
+            const meaningHeader = document.createElement('div');
+            meaningHeader.className = 'match-type-header';
+            meaningHeader.textContent = 'Sentence Matches for Meaning';
+            sentenceMatchesElement.appendChild(meaningHeader);
+
+            // Display each meaning sentence pair (arrays are already available)
+            for (let i = 0; i < Math.min(program.user_sentences.length, program.program_sentences.length, 3); i++) {
+                const meaningMatchPair = document.createElement('div');
+                meaningMatchPair.className = 'match-pair';
                 
-                const meaningHeader = document.createElement('div');
-                meaningHeader.className = 'match-type-header';
-                meaningHeader.textContent = 'Sentence Matches for Meaning';
-                sentenceMatchesElement.appendChild(meaningHeader);
-
-                // Display each meaning sentence pair (arrays are already available)
-                for (let i = 0; i < Math.min(program.user_sentences.length, program.program_sentences.length, 3); i++) {
-                    const meaningMatchPair = document.createElement('div');
-                    meaningMatchPair.className = 'match-pair';
-                    
-                    const userMeaningDiv = document.createElement('div');
-                    userMeaningDiv.className = 'user-sentence';
-                    userMeaningDiv.innerHTML = `
-                        ${i === 0 ? '<div class="sentence-label">You wrote:</div>' : ''}
-                        <div class="sentence-text">"${program.user_sentences[i]}"</div>
-                    `;
-                    
-                    const programMeaningDiv = document.createElement('div');
-                    programMeaningDiv.className = 'program-sentence';
-                    programMeaningDiv.innerHTML = `
-                        ${i === 0 ? `<div class="sentence-label">Closest matches from ${program.name}:</div>` : ''}
-                        <div class="sentence-text">"${program.program_sentences[i]}"</div>
-                    `;
-                    
-                    meaningMatchPair.appendChild(userMeaningDiv);
-                    meaningMatchPair.appendChild(programMeaningDiv);
-                    sentenceMatchesElement.appendChild(meaningMatchPair);
-                }
-
-                // Tone match section
-                const toneHeader = document.createElement('div');
-                toneHeader.className = 'match-type-header';
-                toneHeader.textContent = 'Sentence Matches for Tone';
-                sentenceMatchesElement.appendChild(toneHeader);
-
-                // Display each tone sentence pair (arrays are already available)
-                for (let i = 0; i < Math.min(program.user_tone_sentences.length, program.program_tone_sentences.length, 3); i++) {
-                    const toneMatchPair = document.createElement('div');
-                    toneMatchPair.className = 'match-pair';
-                    
-                    const userToneDiv = document.createElement('div');
-                    userToneDiv.className = 'user-sentence';
-                    userToneDiv.innerHTML = `
-                        ${i === 0 ? '<div class="sentence-label">You wrote:</div>' : ''}
-                        <div class="sentence-text">"${program.user_tone_sentences[i]}"</div>
-                    `;
-                    
-                    const programToneDiv = document.createElement('div');
-                    programToneDiv.className = 'program-sentence';
-                    programToneDiv.innerHTML = `
-                        ${i === 0 ? `<div class="sentence-label">Closest matches from ${program.name}:</div>` : ''}
-                        <div class="sentence-text">"${program.program_tone_sentences[i]}"</div>
-                    `;
-                    
-                    toneMatchPair.appendChild(userToneDiv);
-                    toneMatchPair.appendChild(programToneDiv);
-                    sentenceMatchesElement.appendChild(toneMatchPair);
-                }
-                sentenceDisplayElement.appendChild(sentenceMatchesElement)
-            } else {
-                // Show simple top sentences
-                const topSentencesElement = document.createElement('div');
-                topSentencesElement.className = 'top-sentences';
+                const userMeaningDiv = document.createElement('div');
+                userMeaningDiv.className = 'user-sentence';
+                userMeaningDiv.innerHTML = `
+                    ${i === 0 ? '<div class="sentence-label">You Wrote:</div>' : ''}
+                    <div class="sentence-text">"${program.user_sentences[i]}"</div>
+                `;
                 
-                const sentencesHeader = document.createElement('div');
-                sentencesHeader.className = 'sentences-header';
-                sentencesHeader.textContent = `Some relevant sentences from ${program.name}:`;
-                topSentencesElement.appendChild(sentencesHeader);
+                const programMeaningDiv = document.createElement('div');
+                programMeaningDiv.className = 'program-sentence';
+                programMeaningDiv.innerHTML = `
+                    ${i === 0 ? `<div class="sentence-label">Closest Matches from ${program.name}:</div>` : ''}
+                    <div class="sentence-text">"${program.program_sentences[i]}"</div>
+                `;
                 
-                program.display_sentences.forEach((sentence, index) => {
-                    const sentenceDiv = document.createElement('div');
-                    sentenceDiv.className = 'display-sentence';
-                    sentenceDiv.innerHTML = `<div class="sentence-text"> "${sentence}"</div>`;
-                    topSentencesElement.appendChild(sentenceDiv);
-                });
-                
-                sentenceDisplayElement.appendChild(topSentencesElement);
+                meaningMatchPair.appendChild(userMeaningDiv);
+                meaningMatchPair.appendChild(programMeaningDiv);
+                sentenceMatchesElement.appendChild(meaningMatchPair);
             }
-            
+
+            // Tone match section
+            const toneHeader = document.createElement('div');
+            toneHeader.className = 'match-type-header';
+            toneHeader.textContent = 'Sentence Matches for Tone';
+            sentenceMatchesElement.appendChild(toneHeader);
+
+            // Display each tone sentence pair (arrays are already available)
+            for (let i = 0; i < Math.min(program.user_tone_sentences.length, program.program_tone_sentences.length, 3); i++) {
+                const toneMatchPair = document.createElement('div');
+                toneMatchPair.className = 'match-pair';
+                
+                const userToneDiv = document.createElement('div');
+                userToneDiv.className = 'user-sentence';
+                userToneDiv.innerHTML = `
+                    ${i === 0 ? '<div class="sentence-label">You wrote:</div>' : ''}
+                    <div class="sentence-text">"${program.user_tone_sentences[i]}"</div>
+                `;
+                
+                const programToneDiv = document.createElement('div');
+                programToneDiv.className = 'program-sentence';
+                programToneDiv.innerHTML = `
+                    ${i === 0 ? `<div class="sentence-label">Closest matches from ${program.name}:</div>` : ''}
+                    <div class="sentence-text">"${program.program_tone_sentences[i]}"</div>
+                `;
+                
+                toneMatchPair.appendChild(userToneDiv);
+                toneMatchPair.appendChild(programToneDiv);
+                sentenceMatchesElement.appendChild(toneMatchPair);
+            }
+            sentenceDisplayElement.appendChild(sentenceMatchesElement)
+
+            expandButton.addEventListener('click', function() {  //For collapsing and expanding sentence matches
+                const isCollapsed = sentenceDisplayElement.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    sentenceDisplayElement.classList.remove('collapsed');
+                    expandButton.textContent = 'Hide Sentence Matches';
+                } else {
+                    sentenceDisplayElement.classList.add('collapsed');
+                    expandButton.textContent = 'Show How Your Answers Compare to Program Text';
+                }
+            });
             
             // Append all elements to the program card
             programCard.appendChild(nameScoreContainer);
@@ -320,6 +306,7 @@
             programCard.appendChild(communityElement);
             programCard.appendChild(forumElement);
             programCard.appendChild(descriptionElement);
+            programCard.appendChild(expandButton);
             programCard.appendChild(sentenceDisplayElement);
             
             
