@@ -79,10 +79,10 @@ def rank_progs(UserText, q_indx, topsem_indx, topsem_score, toptone_indx, topton
         flat_tone_scores = toptone_score[p].flatten()
         flat_tone_indx = toptone_indx[p].flatten()
         
-        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:Navg_sem] #get indices of the top Navg scores in the scores list
-        topsem_scores = [flat_sem_scores[indx] for indx in Topsem_indx] #get the top Navg scores
-        topsem_sent_indx = [int(flat_sem_indx[indx]) for indx in Topsem_indx] #get the indices for the top ten sentences using score indices
-        sem_sentences = [program_list[p].text[indx] for indx in topsem_sent_indx] #get the top ten sentences
+        Topsem_indx = np.argsort(flat_sem_scores)[::-1][:Navg_sem] #get indices of the top Navg_sem scores in the scores list
+        topsem_scores = [flat_sem_scores[indx] for indx in Topsem_indx] #get the top Navg_sem scores
+        topsem_sent_indx = [int(flat_sem_indx[indx]) for indx in Topsem_indx] #get the indices for the top Navg_sem sentences using score indices
+        sem_sentences = [program_list[p].text[indx] for indx in topsem_sent_indx] #get the top Navg_sem sentences
         user_sem_indx = np.floor([indx/N_similarities for indx in Topsem_indx]).astype(int)
         user_sem_sentences = [UserText[indx] for indx in user_sem_indx]
         q_sem_indx = [q_indx[indx] for indx in user_sem_indx]
