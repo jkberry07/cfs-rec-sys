@@ -73,13 +73,24 @@ def init_db():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Create surveys table if it doesn't exist
+        # Create recommendations table if it doesn't exist
+        # Previous table was named "surveys", stored only questions and top programs
         cur.execute('''
-            CREATE TABLE IF NOT EXISTS surveys (
+            CREATE TABLE IF NOT EXISTS recommendations (
                 id SERIAL PRIMARY KEY,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 questions JSONB,
+                top_prog_sentences JSONB,
                 top_programs JSONB
+            )
+        ''')
+
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS click_tracking (
+                id SERIAL PRIMARY KEY,
+                program_name VARCHAR(255),
+                program_url TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         
@@ -92,16 +103,17 @@ def init_db():
 
 
 #log survey data
-def log_survey_data(questions, top_programs):
+def log_survey_data(questions, top_prog_sentences, top_programs):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         
         cur.execute('''
-            INSERT INTO surveys (questions, top_programs)
-            VALUES (%s, %s)
+            INSERT INTO recommendations (questions, top_prog_sentences, top_programs)
+            VALUES (%s, %s, %s)
         ''', (
             json.dumps(questions),
+            json.dumps(top_prog_sentences),
             json.dumps(top_programs)
         ))
         

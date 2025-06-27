@@ -166,6 +166,9 @@
             urlElement.href = program.url;
             urlElement.textContent = program.url;
             urlElement.target = '_blank';
+            urlElement.addEventListener('click', function() {
+                trackClick(program.name, program.url);
+            });
             urlElement.style = 'color: var(--primary-green);'
 
             const priceElement = document.createElement('div');
@@ -321,6 +324,22 @@
         // Add event listener to the filter button
         document.getElementById('apply-filters').addEventListener('click', displayPrograms);
     
+        // Add event listener to track which program sites get visited
+        function trackClick(programName, programUrl) {
+            fetch('/track-click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    program_name: programName,
+                    program_url: programUrl
+                })
+            }).catch(error => {
+                console.error('Error tracking click:', error);
+            });
+        }
+
   </script>
 </body>
 </html>
