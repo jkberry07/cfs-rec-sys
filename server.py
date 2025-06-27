@@ -3,7 +3,7 @@ import os
 import sys
 from flask import Flask, render_template, request, jsonify
 import requests
-from deploy_setup import download_models, init_db, log_survey_data
+from deploy_setup import download_models, init_db, log_survey_data, get_db_connection
 from dotenv import load_dotenv
 
 load_dotenv() #get environment variables on local machine.
@@ -153,11 +153,20 @@ def recommendations():
         {
             'name': ranked_programs[i]['name'],
             'score': ranked_programs[i]['score']
+            #Also store top sentences used for each program, the ones that are used for the score (I believe that's 5 from semantics and 10 from tone)
         }
         for i in range(min(5, len(ranked_programs)))
     ]
 
-    log_survey_data(questions, top_5_programs)
+    top_prog_sentences = [
+        {
+            'name': summary['Name'][idx],
+            'sem_sentences': summary['Semantic Sentences'][idx]
+        }
+        for idx in ranking_idx
+    ]
+
+    log_survey_data(questions, top_prog_sentences, top_5_programs)
 
     ranked_programs_json = json.dumps(ranked_programs)
 
@@ -171,6 +180,31 @@ def recommendations():
                           community_survey=community,
                           forum_survey=forum,
                           version=time.time())
+
+#track which program websites get visited
+@app.route('/track-click', methods=['POST'])
+def track_click():
+    try:
+        data = request.get_json()
+        program_name = data.get('program_name')
+        program_url = data.get('program_url')
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute('''
+            INSERT INTO click_tracking (program_name, program_url, timestamp)
+            VALUES (%s, %s, CURRENT_TIMESTAMP)
+        ''', (program_name, program_url))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error tracking click: {e}")
+        return jsonify({'success': False}), 500
 
 # Start the server
 if __name__ == '__main__':
