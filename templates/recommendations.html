@@ -134,6 +134,10 @@
         // Update results count
         const resultsCountElement = document.getElementById('results-count');
         resultsCountElement.textContent = `Showing ${filteredPrograms.length} recovery program${filteredPrograms.length !== 1 ? 's' : ''}`;
+
+        // Log filter usage 
+        logFilterUsage(maxPrice, displayCount, refund_policy, financial_aid, coaching, forum, community, filteredPrograms.length);
+    
         
         // Display the filtered programs
         const programsListElement = document.getElementById('programs-list');
@@ -322,7 +326,10 @@
         document.addEventListener('DOMContentLoaded', displayPrograms());
         
         // Add event listener to the filter button
-        document.getElementById('apply-filters').addEventListener('click', displayPrograms);
+        document.getElementById('apply-filters').addEventListener('click', function() {
+            displayPrograms();
+            logFilterUsage();
+        });
     
         // Add event listener to track which program sites get visited
         function trackClick(programName, programUrl) {
@@ -332,11 +339,38 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    session_id: '{{ session_id }}',
                     program_name: programName,
                     program_url: programUrl
                 })
             }).catch(error => {
                 console.error('Error tracking click:', error);
+            });
+        }
+
+        function logFilterUsage(maxPrice, displayCount, refundPolicy, financialAid, coaching, forum, community, resultsCount) {
+            const filterSettings = {
+                max_price: maxPrice === Infinity ? null : maxPrice,
+                display_count: displayCount,
+                refund_policy: refundPolicy,
+                financial_aid: financialAid,
+                coaching: coaching,
+                forum: forum,
+                community: community
+            };
+            
+            fetch('/log-filter-usage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: '{{ session_id }}',
+                    filter_settings: filterSettings,
+                    results_count: resultsCount  // This is now the actual integer count
+                })
+            }).catch(error => {
+                console.error('Error logging filter usage:', error);
             });
         }
 

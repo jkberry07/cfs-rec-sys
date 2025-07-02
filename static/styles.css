@@ -517,6 +517,24 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
+.consent-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-green);
+}
+
+.consent-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.consent-checkbox input[type="checkbox"] {
+  margin-top: 0.2rem;
+}
+
 .filter-title {
   font-size: 1.2em;
   margin-bottom: 15px;

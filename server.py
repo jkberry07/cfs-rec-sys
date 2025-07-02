@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, jsonify
 import requests
 from deploy_setup import download_models, init_db, log_survey_data, get_db_connection
 from dotenv import load_dotenv
+import uuid
 
 load_dotenv() #get environment variables on local machine.
 init_db() #initialize the database
@@ -116,6 +117,9 @@ def recommendations():
     coaching = 'coaching' in request.form
     community = 'community' in request.form
     forum = 'forum' in request.form
+    store_answers_consent = 'store-answers' in request.form
+
+    session_id = str(uuid.uuid4()) #create an anonymous session id
 
     # Open list of programs
     with open('program_list.pkl', 'rb') as file:
@@ -161,12 +165,34 @@ def recommendations():
     top_prog_sentences = [
         {
             'name': summary['Name'][idx],
-            'sem_sentences': summary['Semantic Sentences'][idx]
+            'sem_sentences': summary['Semantic Sentences'][idx],
+            'tone_sentences': summary['Tone Sentences'][idx]
         }
         for idx in ranking_idx
     ]
 
-    log_survey_data(questions, top_prog_sentences, top_5_programs)
+    if store_answers_consent:
+        user_sentences = [
+            {
+                'answers': answers,
+                'user_sem_sentences': summary['User Semantic Sentences'][idx],
+                'user_tone_sentences': summary['User Tone Sentences'][idx],
+            }
+            for idx in ranking_idx
+        ]
+    else:
+        user_sentences = None
+
+    initial_filters = {
+        'max_price': max_price,
+        'refund': refund,
+        'financial_aid': financial_aid,
+        'coaching': coaching,
+        'community': community,
+        'forum': forum
+    }
+
+    log_survey_data(session_id, questions, user_sentences, top_prog_sentences, top_5_programs, initial_filters)
 
     ranked_programs_json = json.dumps(ranked_programs)
 
@@ -179,32 +205,69 @@ def recommendations():
                           coaching_survey=coaching,
                           community_survey=community,
                           forum_survey=forum,
+                          session_id = session_id,
                           version=time.time())
 
 #track which program websites get visited
 @app.route('/track-click', methods=['POST'])
 def track_click():
+    conn = None
+    cur = None
     try:
         data = request.get_json()
         program_name = data.get('program_name')
         program_url = data.get('program_url')
+        session_id = data.get('session_id')
         
         conn = get_db_connection()
         cur = conn.cursor()
         
         cur.execute('''
-            INSERT INTO click_tracking (program_name, program_url, timestamp)
-            VALUES (%s, %s, CURRENT_TIMESTAMP)
-        ''', (program_name, program_url))
+            INSERT INTO click_tracking (session_id, program_name, program_url, timestamp)
+            VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+        ''', (session_id, program_name, program_url))
         
         conn.commit()
-        cur.close()
-        conn.close()
         
         return jsonify({'success': True})
     except Exception as e:
         print(f"Error tracking click: {e}")
         return jsonify({'success': False}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+    
+#track filter usage
+@app.route('/log-filter-usage', methods=['POST'])
+def log_filter_usage():
+    cur = None
+    conn = None
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        filter_settings = data.get('filter_settings')
+        results_count = data.get('results_count')
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute('''
+            INSERT INTO filter_usage (session_id, filter_settings, results_count)
+            VALUES (%s, %s, %s)
+        ''', (session_id, json.dumps(filter_settings), results_count))
+        
+        conn.commit()        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error logging filter usage: {e}")
+        return jsonify({'success': False}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 # Start the server
 if __name__ == '__main__':

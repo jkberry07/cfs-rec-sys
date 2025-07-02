@@ -69,6 +69,8 @@ def get_db_connection():
 
 # Initialize database table
 def init_db():
+    conn = None
+    cur = None
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -79,47 +81,76 @@ def init_db():
             CREATE TABLE IF NOT EXISTS recommendations (
                 id SERIAL PRIMARY KEY,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                session_id TEXT,
                 questions JSONB,
+                user_sentences JSONB,
                 top_prog_sentences JSONB,
-                top_programs JSONB
+                top_programs JSONB,
+                initial_filters JSONB
             )
         ''')
 
         cur.execute('''
             CREATE TABLE IF NOT EXISTS click_tracking (
                 id SERIAL PRIMARY KEY,
+                session_id TEXT,
                 program_name VARCHAR(255),
                 program_url TEXT,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS filter_usage (
+                id SERIAL PRIMARY KEY,
+                session_id TEXT,
+                filter_settings JSONB,
+                results_count INTEGER,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
         conn.commit()
-        cur.close()
-        conn.close()
         print("Database initialized successfully")
     except Exception as e:
         print(f"Error initializing database: {e}")
+        if conn:
+            conn.rollback() #rollback on error
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 #log survey data
-def log_survey_data(questions, top_prog_sentences, top_programs):
+def log_survey_data(session_id, questions, user_sentences, top_prog_sentences, top_programs,initial_filters):
+    conn = None
+    cur = None
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         
         cur.execute('''
-            INSERT INTO recommendations (questions, top_prog_sentences, top_programs)
-            VALUES (%s, %s, %s)
+            INSERT INTO recommendations (session_id, questions, user_sentences, top_prog_sentences, top_programs, initial_filters)
+            VALUES (%s, %s, %s, %s, %s, %s)
         ''', (
+            session_id,
             json.dumps(questions),
+            json.dumps(user_sentences),
             json.dumps(top_prog_sentences),
-            json.dumps(top_programs)
+            json.dumps(top_programs),
+            json.dumps(initial_filters)
         ))
         
         conn.commit()
-        cur.close()
-        conn.close()
         print("Survey data logged successfully")
     except Exception as e:
         print(f"Error logging survey data: {e}")
+        if conn:
+            conn.rollback()  # Rollback on error
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
