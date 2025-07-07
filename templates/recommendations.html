@@ -134,7 +134,7 @@
         // Update results count
         const resultsCountElement = document.getElementById('results-count');
         resultsCountElement.textContent = `Showing ${filteredPrograms.length} recovery program${filteredPrograms.length !== 1 ? 's' : ''}`;
-
+        
         // Log filter usage 
         logFilterUsage(maxPrice, displayCount, refund_policy, financial_aid, coaching, forum, community, filteredPrograms.length);
     
@@ -328,7 +328,6 @@
         // Add event listener to the filter button
         document.getElementById('apply-filters').addEventListener('click', function() {
             displayPrograms();
-            logFilterUsage();
         });
     
         // Add event listener to track which program sites get visited
