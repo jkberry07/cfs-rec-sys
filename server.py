@@ -23,7 +23,16 @@ from compare_to_user import generate_recommendation
 import time
 import json
 
-
+try:
+    with open('program_list.pkl', 'rb') as file:
+        program_list = pickle.load(file)
+    N_progs = len(program_list)
+    prices = [program_list[i].price for i in range(N_progs)]
+except Exception as e:
+    print(f"Error loading program list: {e}")
+    program_list = []
+    prices = []
+    N_progs = 0
 
 @app.route('/', methods=['GET'])
 def home():
@@ -31,7 +40,9 @@ def home():
 
 @app.route('/survey', methods=['GET'])
 def start_survey():
-    return render_template('survey.html')
+    if not program_list:
+        return render_template('maintenance.html'), 503
+    return render_template('survey.html', price_list = prices)
 
 @app.route('/about', methods=['GET'])
 def about():
@@ -101,6 +112,8 @@ def what_is_brain_retraining():
 
 @app.route('/recommendations', methods=['POST'])
 def recommendations():
+    if not program_list:
+        return render_template('maintenance.html'), 503
     # Get the form data
     q1 = request.form.get('question1')
     a1 = request.form.get('answer1')
@@ -120,11 +133,6 @@ def recommendations():
     store_answers_consent = 'store-answers' in request.form
 
     session_id = str(uuid.uuid4()) #create an anonymous session id
-
-    # Open list of programs
-    with open('program_list.pkl', 'rb') as file:
-        program_list = pickle.load(file)
-    N_progs = len(program_list)
 
     # Generate the ranked list of programs, regardless of filter settings
     summary, ranking_idx = generate_recommendation(answers, questions)
@@ -199,6 +207,7 @@ def recommendations():
     # Build and return the HTML with the recommendations
     return render_template('recommendations.html', 
                           ranked_programs=ranked_programs_json,
+                          price_list = prices,
                           max_price_survey = max_price,
                           refund_survey=refund,
                           financial_aid_survey = financial_aid,
