@@ -100,9 +100,30 @@
         <div class="filter-options">
           <!-- Price Range -->
           <div class="filter-group">
-            <label for="max-price">Maximum Price ($, USD):</label>
-            <input type="number" id="max-price" name="max-price" min="300" step="50" value="0">
-          </div>
+            <div class="price-filter-container">
+              <label for="max-price"><strong>Maximum Price ($, USD):</strong></label>
+              
+              <div class="price-display">
+                  <span id="price-value">$1500+</span>
+              </div>
+              
+              <div class="price-histogram" id="price-histogram">
+                  <div class="histogram-bars" id="histogram-bars"></div>
+              </div>
+              
+              <input type="range" id="max-price" name="max-price" class="price-slider" 
+                    min="100" max="1500" value="1500" step="50">
+              
+              <div class="price-labels">
+                  <span>$100</span>
+                  <span>$1500+</span>
+              </div>
+              
+              <div class="programs-count">
+                  <span id="programs-count">All programs in price range</span>
+              </div>
+             </div>
+            </div>
             
             <!-- Toggleable Filters -->
           <div class="filter-toggles">
@@ -171,6 +192,79 @@
       </footer>
 
   <script>
+
+    //Set up for price histogram
+    // @ts-nocheck
+    const prices = {{ price_list | tojson }};
+    let buckets = [];
+    
+    function createPriceHistogram() {
+        const minPrice = 100;
+        const maxPrice = Math.max(1500, Math.max(...prices));
+        const bucketSize = 50;
+        
+        // Update slider max if needed
+        document.getElementById('max-price').max = maxPrice;
+        
+        // Create buckets and count programs
+        buckets = [];
+        for (let i = minPrice; i < maxPrice; i += bucketSize) {
+            const count = prices.filter(p => p >= i && p < i + bucketSize).length;
+            buckets.push({ min: i, max: i + bucketSize - 1, count });
+        }
+        
+        // Generate histogram bars
+        const maxCount = Math.max(...buckets.map(b => b.count));
+        const histogramBars = document.getElementById('histogram-bars');
+        
+        buckets.forEach(bucket => {
+            const bar = document.createElement('div');
+            bar.className = 'histogram-bar';
+            bar.style.height = `${(bucket.count / maxCount) * 100}%`;
+            bar.title = `$${bucket.min}-$${bucket.max}: ${bucket.count} programs`;
+            histogramBars.appendChild(bar);
+        });
+    }
+    
+    function updateSliderDisplay() {
+        const slider = document.getElementById('max-price');
+        const currentValue = parseInt(slider.value);
+        const maxValue = parseInt(slider.max);
+        
+        // Update price display
+        const priceDisplay = document.getElementById('price-value');
+        priceDisplay.textContent = currentValue >= maxValue ? `$${maxValue}+` : `$${currentValue}`;
+        
+        // Update histogram bars
+        const bars = document.querySelectorAll('.histogram-bar');
+        let eligiblePrograms = 0;
+        
+        buckets.forEach((bucket, index) => {
+            if (bucket.max <= currentValue) {
+                bars[index].classList.remove('inactive');
+                eligiblePrograms += bucket.count;
+            } else {
+                bars[index].classList.add('inactive');
+            }
+        });
+        
+        // Update programs count
+        const programsCount = document.getElementById('programs-count');
+        if (currentValue >= maxValue) {
+            programsCount.textContent = `All ${prices.length} programs in selected price range.`;
+        } else {
+            programsCount.textContent = `${eligiblePrograms} of ${prices.length} programs in selected price range.`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        createPriceHistogram();
+        updateSliderDisplay();
+        
+        // Add slider event listener
+        document.getElementById('max-price').addEventListener('input', updateSliderDisplay);
+    });
+
       // Simple script to prevent duplicate question selections
     document.addEventListener('DOMContentLoaded', function() {
       const selects = [
@@ -208,20 +302,7 @@
       });
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-    const maxPriceInput = document.getElementById('max-price');
-  
-    maxPriceInput.addEventListener('invalid', function(e) {
-      if (this.validity.rangeUnderflow) {
-       this.setCustomValidity('Max price must be at least 300');
-     } 
-    });
-  
-    // Clear custom validity when user starts typing again
-    maxPriceInput.addEventListener('input', function() {
-      this.setCustomValidity('');
-    });
-});
+
     // Handle page visibility change (detect when coming back from browser back button)
       document.addEventListener('visibilitychange', function() {
         if (!document.hidden && formSubmitted) {
