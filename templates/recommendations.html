@@ -28,7 +28,7 @@
   </nav>
   <div class="recommendations-container">
       <p><b>&nbsp&nbspRemember, this is just a starting point. Once you've narrowed it down, research your top choices on their websites.
-        For additional insights, the "<a href="https://healwithliz.com/programs-guide/" target="_blank" style="color: var(--primary-green);">ME/CFS Programs Guide</a>" 
+        For additional insights, the "<a href="https://healwithliz.com/programs-guide/" target="_blank" style="color: var(--primary-green);" onclick='trackClick("Programs Guide", "https://healwithliz.com/programs-guide/")'>ME/CFS Programs Guide</a>" 
         can be a helpful resource.</b>
       </p>
     <div class="recommendations-layout">
@@ -134,9 +134,12 @@
         // Update results count
         const resultsCountElement = document.getElementById('results-count');
         resultsCountElement.textContent = `Showing ${filteredPrograms.length} recovery program${filteredPrograms.length !== 1 ? 's' : ''}`;
+
+        //Store the names of displayed programs
+        const displayedPrograms = filteredPrograms.map(program => program.name);
         
         // Log filter usage 
-        logFilterUsage(maxPrice, displayCount, refund_policy, financial_aid, coaching, forum, community, filteredPrograms.length);
+        logFilterUsage(maxPrice, displayCount, refund_policy, financial_aid, coaching, forum, community, filteredPrograms.length, displayedPrograms);
     
         
         // Display the filtered programs
@@ -347,7 +350,7 @@
             });
         }
 
-        function logFilterUsage(maxPrice, displayCount, refundPolicy, financialAid, coaching, forum, community, resultsCount) {
+        function logFilterUsage(maxPrice, displayCount, refundPolicy, financialAid, coaching, forum, community, resultsCount, displayedPrograms) {
             const filterSettings = {
                 max_price: maxPrice === Infinity ? null : maxPrice,
                 display_count: displayCount,
@@ -366,7 +369,8 @@
                 body: JSON.stringify({
                     session_id: '{{ session_id }}',
                     filter_settings: filterSettings,
-                    results_count: resultsCount  // This is now the actual integer count
+                    results_count: resultsCount,  // This is now the actual integer count
+                    displayed_programs: displayedPrograms
                 })
             }).catch(error => {
                 console.error('Error logging filter usage:', error);
