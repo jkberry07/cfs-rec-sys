@@ -106,6 +106,7 @@ def init_db():
                 session_id TEXT,
                 filter_settings JSONB,
                 results_count INTEGER,
+                displayed_programs JSONB,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')

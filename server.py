@@ -258,14 +258,15 @@ def log_filter_usage():
         session_id = data.get('session_id')
         filter_settings = data.get('filter_settings')
         results_count = data.get('results_count')
+        displayed_programs = data.get('displayed_programs')
         
         conn = get_db_connection()
         cur = conn.cursor()
         
         cur.execute('''
-            INSERT INTO filter_usage (session_id, filter_settings, results_count)
-            VALUES (%s, %s, %s)
-        ''', (session_id, json.dumps(filter_settings), results_count))
+            INSERT INTO filter_usage (session_id, filter_settings, results_count, displayed_programs)
+            VALUES (%s, %s, %s, %s)
+        ''', (session_id, json.dumps(filter_settings), results_count, json.dumps(displayed_programs)))
         
         conn.commit()        
         return jsonify({'success': True})
