@@ -20,10 +20,10 @@
     <div class="nav-container">
       <a href="/" class="nav-link">Home</a>
       <a href="/about" class="nav-link">About</a>
-      <a href="/what-is-brain-retraining" class="nav-link">What is Brain Retraining</a>
+      <a href="/brain-retraining" class="nav-link">What is Brain Retraining</a>
       <a href="/my-story" class="nav-link">My Recovery Story</a>
       <a href="/contact" class="nav-link">Contact</a>
-      <a href="/survey" class="nav-link start-survey">Start Survey</a>
+      <a href="/survey" class="nav-link start-survey">Start Program Finder</a>
     </div>
   </nav>
   <div class="recommendations-container">
@@ -51,13 +51,47 @@
               </div>
           </div>
           
+          <label><strong>Program Features</strong></label>
           <div class="filter-row">
-              <div class="filter-group">
-                  <label><strong>Program Features</strong></label>
-                  <div class="checkbox-group">
-                      <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
-                      <label for="refund-policy">Refund Policy</label>
-                  </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
+                    <label for="refund" style="font-weight: 600;">Refund Policy or Free Trial</label>
+                    <button type="button" class="expand-refund-btn" id="expand-refund-rec">▼</button>
+                </div>
+            </div>
+
+            <!-- Expandable refund options (hidden by default) -->
+            <div class="refund-options" id="refund-options-rec" style="display: none;">
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-within-7-rec" value="refund-within-7" {% if refund_within_7 %}checked{% endif %}>
+                    <label for="refund-within-7-rec">Within 7 days (<span id="count-7-rec">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-within-14-rec" value="refund-within-14" {% if refund_within_14 %}checked{% endif %}>
+                    <label for="refund-within-14-rec">Within 14 days (<span id="count-14-rec">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-within-30-rec" value="refund-within-30" {% if refund_within_30 %}checked{% endif %}>
+                    <label for="refund-within-30-rec">Within 30 days (<span id="count-30-rec">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-after-6-rec" value="refund-after-6" {% if refund_after_6 %}checked{% endif %}>
+                    <label for="refund-after-6-rec">After 6 months (<span id="count-after-6-rec">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-6-12-rec" value="refund-6-12" {% if refund_6_12 %}checked{% endif %}>
+                    <label for="refund-6-12-rec">After 6 months, before 12 months (<span id="count-6-12-rec">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-any-rec" value="refund-any" {% if refund_any_time %}checked{% endif %}>
+                    <label for="refund-any-rec">Any length of time (<span id="count-any-rec">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" id="refund-trial-rec" value="refund-trial" {% if free_trial %}checked{% endif %}>
+                    <label for="refund-trial-rec">Free trial period (<span id="count-trial-rec">0</span>)</label>
+                </div>
+            </div>
+            <div class="filter-group">
                   <div class="checkbox-group">
                       <input type="checkbox" id="financial_aid" value="financial_aid" {% if financial_aid_survey %}checked{% endif %}>
                       <label for="financial_aid">Financial Aid</label>
@@ -78,16 +112,17 @@
               </div>
               
           </div>
-          
-          
+        
           <button id="apply-filters">Apply Filters</button>
        </div>
-      </div>
+
       <div class="results">
           <div class="results-count" id="results-count">Showing all recovery programs</div>
           <div id="programs-list"></div>
       </div>
       
+      </div>
+
     </div>
     <div class="bottom-notes">
         <p>If you notice any inaccuracies in the information provided here, please <a href="/contact" style="color: var(--primary-green);">let me know!</a></p>
@@ -106,14 +141,27 @@
     
     function displayPrograms() {
         const rankedPrograms = {{ ranked_programs|safe }};
+        console.log('Total programs:', rankedPrograms.length);
+        console.log('Sample program:', rankedPrograms[0]);
+
         const maxPrice = document.getElementById('max_price').value ? parseFloat(document.getElementById('max_price').value) : Infinity;
         const displayCount = document.getElementById('display-count').value;
         const refund_policy = document.getElementById('refund').checked;
+        const refundWithin7 = document.getElementById('refund-within-7-rec')?.checked || false;
+        const refundWithin14 = document.getElementById('refund-within-14-rec')?.checked || false;
+        const refundWithin30 = document.getElementById('refund-within-30-rec')?.checked || false;
+        const refund6To12 = document.getElementById('refund-6-12-rec')?.checked || false;
+        const refundAfter6 = document.getElementById('refund-after-6-rec')?.checked || false;
+        const refundAnyTime = document.getElementById('refund-any-time-rec')?.checked || false;
+        const refundFreeTrial = document.getElementById('refund-trial-rec')?.checked || false;
         const financial_aid = document.getElementById('financial_aid').checked;
         const coaching = document.getElementById('coaching').checked;
         const forum = document.getElementById('forum').checked;
         const community = document.getElementById('community').checked;
         
+        const anyRefundFiltersSelected = refundWithin7 || refundWithin14 || refundWithin30 || 
+                                refundAfter6 || refund6To12 || refundAnyTime || refundFreeTrial;
+
         // Filter programs based on criteria
         let filteredPrograms =  rankedPrograms.filter(program => {
             if (program.price > maxPrice) return false;
@@ -122,6 +170,22 @@
             if (coaching && !program.coaching) return false;
             if (forum && !program.forum) return false;
             if (community && !program.community) return false;
+
+            // Refund term filtering - only apply if specific refund filters are selected
+            if (anyRefundFiltersSelected) {
+                const programRefundTerms = program.refund_terms || [];
+                // Check if program matches ANY of the selected refund criteria
+                const matchesRefundFilter = 
+                    (refundWithin7 && programRefundTerms.includes('Within 7 days')) ||
+                    (refundWithin14 && programRefundTerms.includes('Within 14 days')) ||
+                    (refundWithin30 && programRefundTerms.includes('Within 30 days')) ||
+                    (refundAfter6 && programRefundTerms.includes('After 6 months')) ||
+                    (refund6To12 && programRefundTerms.includes('After 6 months, before 12 months')) ||
+                    (refundAnyTime && programRefundTerms.includes('Any length of time')) ||
+                    (refundFreeTrial && programRefundTerms.includes('Free trial period'));
+                
+                if (!matchesRefundFilter) return false;
+            }
             return true;
         });
         
@@ -130,6 +194,8 @@
         if (displayCount !== 'all') {
             filteredPrograms = filteredPrograms.slice(0, parseInt(displayCount));
         }
+
+        console.log('Filtered programs:', filteredPrograms.length);
         
         // Update results count
         const resultsCountElement = document.getElementById('results-count');
@@ -324,9 +390,80 @@
             programsListElement.appendChild(programCard);
           });
         }
-        
+
+        function initializeRefundFilters() {
+            const rankedPrograms = {{ ranked_programs|safe }};
+            
+            // Count programs for each refund term
+            const refundCounts = {
+                '7': 0, '14': 0, '30': 0, 'after-6': 0, '6-12': 0, 'any': 0, 'trial': 0
+            };
+            
+            rankedPrograms.forEach(program => {
+                const terms = program.refund_terms || [];
+                if (terms.includes('Within 7 days')) refundCounts['7']++;
+                if (terms.includes('Within 14 days')) refundCounts['14']++;
+                if (terms.includes('Within 30 days')) refundCounts['30']++;
+                if (terms.includes('After 6 months')) refundCounts['after-6']++;
+                if (terms.includes('After 6 months, before 12 months')) refundCounts['6-12']++;
+                if (terms.includes('Any length of time')) refundCounts['any']++;
+                if (terms.includes('Free trial period')) refundCounts['trial']++;
+            });
+            
+            // Update count displays
+            Object.keys(refundCounts).forEach(key => {
+                const countElement = document.getElementById(`count-${key}-rec`);
+                if (countElement) {
+                    countElement.textContent = refundCounts[key];
+                }
+            });
+            
+            // Handle expand/collapse
+            const expandBtn = document.getElementById('expand-refund-rec');
+            const refundOptions = document.getElementById('refund-options-rec');
+            
+            if (expandBtn && refundOptions) {
+                expandBtn.addEventListener('click', function() {
+                    if (refundOptions.style.display === 'none') {
+                        refundOptions.style.display = 'block';
+                        expandBtn.textContent = '▲';
+                    } else {
+                        refundOptions.style.display = 'none';
+                        expandBtn.textContent = '▼';
+                    }
+                });
+            }
+            // Handle main toggle affecting sub-options
+            const mainToggle = document.getElementById('refund');
+            const subOptions = document.querySelectorAll('.refund-option input[type="checkbox"]');
+            
+            if (mainToggle) {
+                mainToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Check all sub-options when main toggle is checked
+                        subOptions.forEach(option => option.checked = true);
+                    } else {
+                        // Uncheck all sub-options when main toggle is unchecked
+                        subOptions.forEach(option => option.checked = false);
+                    }
+                });
+            }
+             // Handle sub-options affecting main toggle
+            subOptions.forEach(option => {
+                option.addEventListener('change', function() {
+                    const anyChecked = Array.from(subOptions).some(opt => opt.checked);
+                    if (mainToggle) {
+                        mainToggle.checked = anyChecked;
+                    }
+                });
+            });
+        }
+
         // Initial display
-        document.addEventListener('DOMContentLoaded', displayPrograms());
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRefundFilters();
+            displayPrograms();
+        });
         
         // Add event listener to the filter button
         document.getElementById('apply-filters').addEventListener('click', function() {

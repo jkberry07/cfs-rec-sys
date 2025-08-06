@@ -17,6 +17,8 @@ class Program:
         self.text = [text]
         self.semantic_embeddings = []
         self.tone_embeddings = []
+        self.refund_term = []
+        self.access_length = []
 
     def add_text(self,new_text):
         self.text.append(new_text)
