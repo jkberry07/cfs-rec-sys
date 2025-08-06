@@ -23,7 +23,7 @@
       <a href="/brain-retraining" class="nav-link">What is Brain Retraining</a>
       <a href="/my-story" class="nav-link">My Recovery Story</a>
       <a href="/contact" class="nav-link">Contact</a>
-      <a href="/survey" class="nav-link start-survey">Start Survey</a>
+      <a href="/survey" class="nav-link start-survey">Start Program Finder</a>
     </div>
   </nav>
     
@@ -131,10 +131,42 @@
             <div class="filter-row">
                 <span class="filter-label">Refund Policy or Free Trial:</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" name="refund" value="true">
+                    <input type="checkbox" name="refund" value="true" id="refund-toggle">
                     <span class="slider"></span>
                 </label>
-                <span> </span>
+                <button type="button" class="expand-refund-btn" id="expand-refund">▼</button>
+            </div>
+
+            <!-- Expandable refund options (hidden by default) -->
+            <div class="refund-options" id="refund-options" style="display: none;">
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-within-7" value="true" id="refund-7">
+                    <label for="refund-7">Within 7 days (<span id="count-7">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-within-14" value="true" id="refund-14">
+                    <label for="refund-14">Within 14 days (<span id="count-14">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-within-30" value="true" id="refund-30">
+                    <label for="refund-30">Within 30 days (<span id="count-30">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-after-6-before-12" value="true" id="refund-6-12">
+                    <label for="refund-6-12">After 6 months, before 12 months (<span id="count-6-12">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-after-6" value="true" id="refund-after-6">
+                    <label for="refund-after-6">After 6 months (<span id="count-after-6">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-any-time" value="true" id="refund-any">
+                    <label for="refund-any">Any length of time (<span id="count-any">0</span>)</label>
+                </div>
+                <div class="refund-option">
+                    <input type="checkbox" name="refund-free-trial" value="true" id="refund-trial">
+                    <label for="refund-trial">Free trial period (<span id="count-trial">0</span>)</label>
+                </div>
             </div>
               
               <!-- Financial Aid -->
@@ -378,6 +410,73 @@
           }, 60000); // 60 second timeout
       });
     }
+  });
+
+  // Handle refund policy expansion and counting
+  document.addEventListener('DOMContentLoaded', function() {
+      const prices = {{ price_list | tojson }};
+      const refundData = {{ refund_data | tojson }}; // You'll need to pass this from server
+      
+      // Populate refund counts
+      const refundCounts = {
+          '7': 0, '14': 0, '30': 0, 'after-6': 0, '6-12': 0, 'any': 0, 'trial': 0
+      };
+      
+      refundData.forEach(terms => {
+          if (terms.includes('Within 7 days')) refundCounts['7']++;
+          if (terms.includes('Within 14 days')) refundCounts['14']++;
+          if (terms.includes('Within 30 days')) refundCounts['30']++;
+          if (terms.includes('After 6 months')) refundCounts['after-6']++;
+          if (terms.includes('After 6 months, before 12 months')) refundCounts['6-12']++;
+          if (terms.includes('Any length of time')) refundCounts['any']++;
+          if (terms.includes('Free trial period')) refundCounts['trial']++;
+      });
+      
+      // Update count displays
+      Object.keys(refundCounts).forEach(key => {
+          const countElement = document.getElementById(`count-${key}`);
+          if (countElement) {
+              countElement.textContent = refundCounts[key];
+          }
+      });
+      
+      // Handle expand/collapse
+      const expandBtn = document.getElementById('expand-refund');
+      const refundOptions = document.getElementById('refund-options');
+      
+      expandBtn.addEventListener('click', function() {
+          if (refundOptions.style.display === 'none') {
+              refundOptions.style.display = 'block';
+              expandBtn.textContent = '▲';
+          } else {
+              refundOptions.style.display = 'none';
+              expandBtn.textContent = '▼';
+          }
+      });
+      
+      // Handle main toggle affecting sub-options
+      const mainToggle = document.getElementById('refund-toggle');
+      const subOptions = document.querySelectorAll('.refund-option input[type="checkbox"]');
+      
+      if (mainToggle) {
+          mainToggle.addEventListener('change', function() {
+              if (this.checked) {
+                  // Check all sub-options when main toggle is checked
+                  subOptions.forEach(option => option.checked = true);
+              } else {
+                  // Uncheck all sub-options when main toggle is unchecked
+                  subOptions.forEach(option => option.checked = false);
+              }
+          });
+      }
+      
+      // Handle sub-options affecting main toggle
+      subOptions.forEach(option => {
+          option.addEventListener('change', function() {
+              const anyChecked = Array.from(subOptions).some(opt => opt.checked);
+              mainToggle.checked = anyChecked;
+          });
+      });
   });
 </script>
 </body>

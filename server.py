@@ -42,7 +42,15 @@ def home():
 def start_survey():
     if not program_list:
         return render_template('maintenance.html'), 503
-    return render_template('survey.html', price_list = prices)
+    
+    refund_data = []
+    for program in program_list:
+        if hasattr(program, 'refund_term') and program.refund_term:
+            refund_data.append(program.refund_term)
+        else:
+            refund_data.append([])
+    
+    return render_template('survey.html', price_list=prices, refund_data=refund_data)
 
 @app.route('/about', methods=['GET'])
 def about():
@@ -126,11 +134,19 @@ def recommendations():
 
     max_price = request.form.get('max-price')
     refund = 'refund' in request.form
+    refund_within_7 = 'refund-within-7' in request.form
+    refund_within_14 = 'refund-within-14' in request.form
+    refund_within_30 = 'refund-within-30' in request.form
+    refund_after_6 = 'refund-after-6' in request.form
+    refund_6_12 = 'refund-after-6-before-12' in request.form
+    refund_any_time = 'refund-any-time' in request.form
+    refund_free_trial = 'refund-free-trial' in request.form
     financial_aid = 'financial-aid' in request.form
     coaching = 'coaching' in request.form
     community = 'community' in request.form
     forum = 'forum' in request.form
     store_answers_consent = 'store-answers' in request.form
+
 
     session_id = str(uuid.uuid4()) #create an anonymous session id
 
@@ -147,7 +163,9 @@ def recommendations():
             'url': program.url,
             'price': program.price,
             'pricing_notes': program.pricing_notes,
+            'access_length': program.access_length,
             'refund_policy': program.refundable,
+            'refund_terms': program.refund_term,
             'coaching': program.coaching,
             'forum': program.forum,
             'community': program.community,
@@ -194,6 +212,13 @@ def recommendations():
     initial_filters = {
         'max_price': max_price,
         'refund': refund,
+        'refund_7': refund_within_7,
+        'refund_14': refund_within_14,
+        'refund_30': refund_within_30,
+        'refund_6_12': refund_6_12,
+        'refund_6': refund_after_6,
+        'refund_anylength': refund_any_time,
+        'free_trial': refund_free_trial,
         'financial_aid': financial_aid,
         'coaching': coaching,
         'community': community,
@@ -210,6 +235,13 @@ def recommendations():
                           price_list = prices,
                           max_price_survey = max_price,
                           refund_survey=refund,
+                          refund_within_7 = refund_within_7,
+                          refund_within_14 = refund_within_14,
+                          refund_within_30 = refund_within_30,
+                          refund_6_12 = refund_6_12,
+                          refund_after_6 = refund_after_6,
+                          refund_any_time = refund_any_time,
+                          free_trial = refund_free_trial,
                           financial_aid_survey = financial_aid,
                           coaching_survey=coaching,
                           community_survey=community,
