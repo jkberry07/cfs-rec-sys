@@ -127,14 +127,17 @@
             
             <!-- Toggleable Filters -->
           <div class="filter-toggles">
+            <div class="filter-column-left">
             <!-- Refund Policy -->
-            <div class="filter-row">
+             <div class="filter-row">
+              <div class = "filter-row-main">
                 <span class="filter-label">Refund Policy or Free Trial:</span>
                 <label class="toggle-switch">
                     <input type="checkbox" name="refund" value="true" id="refund-toggle">
                     <span class="slider"></span>
                 </label>
-                <button type="button" class="expand-refund-btn" id="expand-refund">▼</button>
+                </div>
+                <button type="button" class="expand-refund-btn" id="expand-refund">▼ Expand Options</button>
             </div>
 
             <!-- Expandable refund options (hidden by default) -->
@@ -168,46 +171,92 @@
                     <label for="refund-trial">Free trial period (<span id="count-trial">0</span>)</label>
                 </div>
             </div>
-              
+
+                      <!-- Access Length -->
+          <div class="filter-row">
+            <div class="filter-row-main">
+              <span class="filter-label">Access Length:</span>
+              <label class="toggle-switch">
+                  <input type="checkbox" name="access-length" value="true" id="access-length-toggle">
+                  <span class="slider"></span>
+              </label>
+            </div>
+              <button type="button" class="expand-access-length-btn" id="expand-access-length">▼ Expand Options</button>
+          </div>
+
+          <!-- Expandable access length options (hidden by default) -->
+          <div class="access-length-options" id="access-length-options" style="display: none;">
+              <div class="access-length-option">
+                  <input type="checkbox" name="access-monthly" value="true" id="access-monthly">
+                  <label for="access-monthly">Monthly subscription (<span id="count-monthly">0</span>)</label>
+              </div>
+              <div class="access-length-option">
+                  <input type="checkbox" name="access-multi-month" value="true" id="access-multi-month">
+                  <label for="access-multi-month">Multi-month subscription (<span id="count-multimonth">0</span>)</label>
+              </div>
+              <div class="access-length-option">
+                  <input type="checkbox" name="access-12-months" value="true" id="access-12">
+                  <label for="access-12">12 months or longer(<span id="count-12">0</span>)</label>
+              </div>
+              <div class="access-length-option">
+                  <input type="checkbox" name="access-24-months" value="true" id="access-24">
+                  <label for="access-24">24 months or longer(<span id="count-24">0</span>)</label>
+              </div>
+              <div class="access-length-option">
+                  <input type="checkbox" name="access-lifetime" value="true" id="access-lifetime">
+                  <label for="access-lifetime">Lifetime (<span id="count-lifetime">0</span>)</label>
+              </div>
+           </div>
+           </div>
+            
+           <div class="filter-column-right">
               <!-- Financial Aid -->
             <div class="filter-row">
+              <div class="filter-row-main">
                 <span class="filter-label">Financial Aid Available:</span>
                 <label class="toggle-switch">
                     <input type="checkbox" name="financial-aid" value="true">
                     <span class="slider"></span>
                 </label>
                 <span> </span>
+              </div>
             </div>
               
             <!-- Coaching Options -->
             <div class="filter-row">
+              <div class="filter-row-main">
                 <span class="filter-label">Coaching Options:</span>
                 <label class="toggle-switch">
                     <input type="checkbox" name="coaching" value="true">
                     <span class="slider"></span>
                 </label>
                 <span> </span>
+              </div>
             </div>
               
             <!-- Community Element -->
             <div class="filter-row">
-              <span class="filter-label">Community Element:</span>
-              <label class="toggle-switch">
-                <input type="checkbox" name="community" value="true">
-                <span class="slider"></span>
-              </label>
-              <span> </span>
+              <div class="filter-row-main">
+                <span class="filter-label">Community Element:</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" name="community" value="true">
+                  <span class="slider"></span>
+                </label>
+                <span> </span>
+              </div>
             </div>
               
             <!-- Forum Element -->
             <div class="filter-row">
-              <span class="filter-label">Forum Element:</span>
-              <label class="toggle-switch">
-                <input type="checkbox" name="forum" value="true">
-                <span class="slider"></span>
-              </label>
-              <span> </span>
+              <div class="filter-row-main">
+                <span class="filter-label">Forum Element:</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" name="forum" value="true">
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
+           </div>
           </div>
         </div>
       </section>
@@ -415,7 +464,8 @@
   // Handle refund policy expansion and counting
   document.addEventListener('DOMContentLoaded', function() {
       const prices = {{ price_list | tojson }};
-      const refundData = {{ refund_data | tojson }}; // You'll need to pass this from server
+      const refundData = {{ refund_data | tojson }};
+      const accessLengthData = {{ access_length_data | tojson }};
       
       // Populate refund counts
       const refundCounts = {
@@ -447,10 +497,10 @@
       expandBtn.addEventListener('click', function() {
           if (refundOptions.style.display === 'none') {
               refundOptions.style.display = 'block';
-              expandBtn.textContent = '▲';
+              expandBtn.textContent = '▲ Collapse Options';
           } else {
               refundOptions.style.display = 'none';
-              expandBtn.textContent = '▼';
+              expandBtn.textContent = '▼ Expand Options';
           }
       });
       
@@ -475,6 +525,64 @@
           option.addEventListener('change', function() {
               const anyChecked = Array.from(subOptions).some(opt => opt.checked);
               mainToggle.checked = anyChecked;
+          });
+      });
+
+      const accessLengthCounts = {
+          'monthly': 0, 'multimonth': 0, '12': 0, '24': 0, 'lifetime': 0
+      };
+
+      accessLengthData.forEach(terms => {
+          if (terms.includes('Monthly subscription')) accessLengthCounts['monthly']++;
+          if (terms.includes('Multi-month subscription')) accessLengthCounts['multimonth']++;
+          if (terms.includes('12 months')||terms.includes('24 months')||terms.includes('Lifetime')) accessLengthCounts['12']++;
+          if (terms.includes('24 months')||terms.includes('Lifetime')) accessLengthCounts['24']++;
+          if (terms.includes('Lifetime')) accessLengthCounts['lifetime']++;
+      });
+
+      // Update count displays for access length
+      Object.keys(accessLengthCounts).forEach(key => {
+          const countElement = document.getElementById(`count-${key}`);
+          if (countElement) {
+              countElement.textContent = accessLengthCounts[key];
+          }
+      });
+
+      // Handle access length expand/collapse
+      const expandAccessBtn = document.getElementById('expand-access-length');
+      const accessLengthOptions = document.getElementById('access-length-options');
+
+      expandAccessBtn.addEventListener('click', function() {
+          if (accessLengthOptions.style.display === 'none') {
+              accessLengthOptions.style.display = 'block';
+              expandAccessBtn.textContent = '▲ Collapse Options';
+          } else {
+              accessLengthOptions.style.display = 'none';
+              expandAccessBtn.textContent = '▼ Expand Options';
+          }
+      });
+
+      // Handle main access length toggle affecting sub-options
+      const mainAccessToggle = document.getElementById('access-length-toggle');
+      const accessSubOptions = document.querySelectorAll('.access-length-option input[type="checkbox"]');
+
+      if (mainAccessToggle) {
+          mainAccessToggle.addEventListener('change', function() {
+              if (this.checked) {
+                  // Check all sub-options when main toggle is checked
+                  accessSubOptions.forEach(option => option.checked = true);
+              } else {
+                  // Uncheck all sub-options when main toggle is unchecked
+                  accessSubOptions.forEach(option => option.checked = false);
+              }
+          });
+      }
+
+      // Handle sub-options affecting main toggle
+      accessSubOptions.forEach(option => {
+          option.addEventListener('change', function() {
+              const anyChecked = Array.from(accessSubOptions).some(opt => opt.checked);
+              mainAccessToggle.checked = anyChecked;
           });
       });
   });

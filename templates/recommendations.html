@@ -52,12 +52,10 @@
           </div>
           
           <label><strong>Program Features</strong></label>
-          <div class="filter-row">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
-                    <label for="refund" style="font-weight: 600;">Refund Policy or Free Trial</label>
-                    <button type="button" class="expand-refund-btn" id="expand-refund-rec">▼</button>
-                </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="refund" value="refund" {% if refund_survey %}checked{% endif %}>
+                <label for="refund" style="font-weight: 600;">Refund Policy or Free Trial</label>
+                <button type="button" class="expand-refund-btn" id="expand-refund-rec">▼</button>
             </div>
 
             <!-- Expandable refund options (hidden by default) -->
@@ -91,6 +89,37 @@
                     <label for="refund-trial-rec">Free trial period (<span id="count-trial-rec">0</span>)</label>
                 </div>
             </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="access_length" value="access_length" {% if access_length_survey %}checked{% endif %}>
+                <label for="access_length" style="font-weight: 600;">Access Length</label>
+                <button type="button" class="expand-access-length-btn" id="expand-access-length-rec">▼</button>
+            </div>
+
+            <!-- Expandable access length options (hidden by default) -->
+            <div class="access-length-options" id="access-length-options-rec" style="display: none;">
+                <div class="access-length-option">
+                    <input type="checkbox" id="access-monthly-rec" value="access-monthly" {% if access_monthly %}checked{% endif %}>
+                    <label for="access-monthly-rec">Monthly subscription (<span id="count-monthly-rec">0</span>)</label>
+                </div>
+                <div class="access-length-option">
+                    <input type="checkbox" id="access-multi-month-rec" value="access-multi-month" {% if access_multi_month %}checked{% endif %}>
+                    <label for="access-multi-month-rec">Multi-month subscription (<span id="count-multi-month-rec">0</span>)</label>
+                </div>
+                <div class="access-length-option">
+                    <input type="checkbox" id="access-12-months-rec" value="access-12-months" {% if access_12_months %}checked{% endif %}>
+                    <label for="access-12-months-rec">12 months or longer(<span id="count-12-rec">0</span>)</label>
+                </div>
+                <div class="access-length-option">
+                    <input type="checkbox" id="access-24-months-rec" value="access-24-months" {% if access_24_months %}checked{% endif %}>
+                    <label for="access-24-months-rec">24 months or longer(<span id="count-24-rec">0</span>)</label>
+                </div>
+                <div class="access-length-option">
+                    <input type="checkbox" id="access-lifetime-rec" value="access-lifetime" {% if access_lifetime %}checked{% endif %}>
+                    <label for="access-lifetime-rec">Lifetime (<span id="count-lifetime-rec">0</span>)</label>
+                </div>
+            </div>
+
             <div class="filter-group">
                   <div class="checkbox-group">
                       <input type="checkbox" id="financial_aid" value="financial_aid" {% if financial_aid_survey %}checked{% endif %}>
@@ -154,6 +183,14 @@
         const refundAfter6 = document.getElementById('refund-after-6-rec')?.checked || false;
         const refundAnyTime = document.getElementById('refund-any-time-rec')?.checked || false;
         const refundFreeTrial = document.getElementById('refund-trial-rec')?.checked || false;
+
+        const accessLength = document.getElementById('access_length').checked;
+        const accessMonthly = document.getElementById('access-monthly-rec')?.checked || false;
+        const accessMultiMonth = document.getElementById('access-multi-month-rec')?.checked || false;
+        const access12Months = document.getElementById('access-12-months-rec')?.checked || false;
+        const access24Months = document.getElementById('access-24-months-rec')?.checked || false;
+        const accessLifetime = document.getElementById('access-lifetime-rec')?.checked || false;
+
         const financial_aid = document.getElementById('financial_aid').checked;
         const coaching = document.getElementById('coaching').checked;
         const forum = document.getElementById('forum').checked;
@@ -161,6 +198,7 @@
         
         const anyRefundFiltersSelected = refundWithin7 || refundWithin14 || refundWithin30 || 
                                 refundAfter6 || refund6To12 || refundAnyTime || refundFreeTrial;
+        const anyAccessFiltersSelected = accessMonthly || accessMultiMonth || access12Months || access24Months || accessLifetime;
 
         // Filter programs based on criteria
         let filteredPrograms =  rankedPrograms.filter(program => {
@@ -186,6 +224,19 @@
                 
                 if (!matchesRefundFilter) return false;
             }
+
+            if (anyAccessFiltersSelected) {
+                const programAccessTerms = program.access_length || [];
+                // Check if program matches any of the selected access criteria with hierarchical logic
+                const matchesAccessFilter = 
+                    (accessMonthly && programAccessTerms.includes('Monthly subscription')) ||
+                    (accessMultiMonth && programAccessTerms.includes('Multi-month subscription')) ||
+                    (access12Months && (programAccessTerms.includes('12 months') || programAccessTerms.includes('24 months') || programAccessTerms.includes('Lifetime'))) ||
+                    (access24Months && (programAccessTerms.includes('24 months') || programAccessTerms.includes('Lifetime'))) ||
+                    (accessLifetime && programAccessTerms.includes('Lifetime'));
+                
+                if (!matchesAccessFilter) return false;
+            }
             return true;
         });
         
@@ -205,7 +256,7 @@
         const displayedPrograms = filteredPrograms.map(program => program.name);
         
         // Log filter usage 
-        logFilterUsage(maxPrice, displayCount, refund_policy, financial_aid, coaching, forum, community, filteredPrograms.length, displayedPrograms);
+        logFilterUsage(maxPrice, displayCount, refund_policy, financial_aid, coaching, forum, community, filteredPrograms.length, displayedPrograms,refundWithin7,refundWithin14,refundWithin30,refund6To12,refundAfter6,refundAnyTime,refundFreeTrial,accessLength,accessMonthly,accessMultiMonth,access12Months,access24Months,accessLifetime);
     
         
         // Display the filtered programs
@@ -457,6 +508,69 @@
                     }
                 });
             });
+
+            const accessLengthCounts = {
+                'monthly': 0, 'multi-month': 0, '12': 0, '24': 0, 'lifetime': 0
+            };
+
+            rankedPrograms.forEach(program => {
+                const terms = program.access_length || [];
+                if (terms.includes('Monthly subscription')) accessLengthCounts['monthly']++;
+                if (terms.includes('Multi-month subscription')) accessLengthCounts['multi-month']++;
+                if (terms.includes('12 months')||terms.includes('24 months')||terms.includes('Lifetime')) accessLengthCounts['12']++;
+                if (terms.includes('24 months')||terms.includes('Lifetime')) accessLengthCounts['24']++;
+                if (terms.includes('Lifetime')) accessLengthCounts['lifetime']++;
+            });
+
+            // Update count displays for access length
+            Object.keys(accessLengthCounts).forEach(key => {
+                const countElement = document.getElementById(`count-${key}-rec`);
+                if (countElement) {
+                    countElement.textContent = accessLengthCounts[key];
+                }
+            });
+
+            // Handle access length expand/collapse
+            const expandAccessBtn = document.getElementById('expand-access-length-rec');
+            const accessLengthOptions = document.getElementById('access-length-options-rec');
+
+            if (expandAccessBtn && accessLengthOptions) {
+                expandAccessBtn.addEventListener('click', function() {
+                    if (accessLengthOptions.style.display === 'none') {
+                        accessLengthOptions.style.display = 'block';
+                        expandAccessBtn.textContent = '▲';
+                    } else {
+                        accessLengthOptions.style.display = 'none';
+                        expandAccessBtn.textContent = '▼';
+                    }
+                });
+            }
+
+            // Handle main access length toggle affecting sub-options
+            const mainAccessToggle = document.getElementById('access_length');
+            const accessSubOptions = document.querySelectorAll('.access-length-option input[type="checkbox"]');
+
+            if (mainAccessToggle) {
+                mainAccessToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Check all sub-options when main toggle is checked
+                        accessSubOptions.forEach(option => option.checked = true);
+                    } else {
+                        // Uncheck all sub-options when main toggle is unchecked
+                        accessSubOptions.forEach(option => option.checked = false);
+                    }
+                });
+            }
+
+            // Handle sub-options affecting main toggle
+            accessSubOptions.forEach(option => {
+                option.addEventListener('change', function() {
+                    const anyChecked = Array.from(accessSubOptions).some(opt => opt.checked);
+                    if (mainAccessToggle) {
+                        mainAccessToggle.checked = anyChecked;
+                    }
+                });
+            });
         }
 
         // Initial display
@@ -487,11 +601,24 @@
             });
         }
 
-        function logFilterUsage(maxPrice, displayCount, refundPolicy, financialAid, coaching, forum, community, resultsCount, displayedPrograms) {
+        function logFilterUsage(maxPrice, displayCount, refundPolicy, financialAid, coaching, forum, community, resultsCount, displayedPrograms,refundWithin7,refundWithin14,refundWithin30,refund6To12,refundAfter6,refundAnyTime,refundFreeTrial,accessLength,accessMonthly,accessMultiMonth,access12Months,access24Months,accessLifetime) {
             const filterSettings = {
                 max_price: maxPrice === Infinity ? null : maxPrice,
                 display_count: displayCount,
                 refund_policy: refundPolicy,
+                refund_within7: refundWithin7,
+                refund_within14: refundWithin14,
+                refund_within30: refundWithin30,
+                refund_6_to_12: refund6To12,
+                refund_after_6: refundAfter6,
+                refund_any_time: refundAnyTime,
+                free_trial: refundFreeTrial,
+                access_length: accessLength,
+                access_monthly: accessMonthly,
+                access_multi_month: accessMultiMonth,
+                access_12_months: access12Months,
+                access_24_months: access24Months,
+                access_lifetime: accessLifetime,
                 financial_aid: financialAid,
                 coaching: coaching,
                 forum: forum,
