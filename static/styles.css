@@ -47,7 +47,6 @@ header {
   background-color: white;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   padding: 0.75rem 0;
-  position: sticky;
   top: 0;
   z-index: 100;
 }
@@ -336,8 +335,6 @@ button:hover {
 
 .filters-sidebar {
   flex: 0 0 280px; /* Fixed width sidebar */
-  position: sticky;
-  top: 80px; /* Adjust based on nav height */
 }
 
 .results-content {
@@ -550,12 +547,45 @@ input:checked + .slider:before {
 
 .filter-row {
   display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.filter-row-main {
+  display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .filter-label {
   min-width: 200px;
+}
+
+.filter-toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .filter-toggles {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.filter-column-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-column-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-left: 10px
 }
 
 #max_price {
@@ -652,6 +682,8 @@ input:checked + .slider:before {
 .form-group textarea {
   resize: vertical;
   min-height: 120px;
+  overflow-y: auto; /* Ensure vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Contact form submit button - override default button styles */
@@ -872,7 +904,16 @@ input:checked + .slider:before {
   width: 100%;
   background-color: #f9f9f9;
   border-radius: 4px;
-  padding: 10px;
+  padding: 0px;
+  margin-right: 1rem; /* Add right margin to prevent overlap */
+}
+
+/* Adjust the price filter container */
+.filter-group:has(.price-filter-container) {
+  min-width: 300px;
+  flex: 1;
+  max-width: 450px; /* Reduce max-width to accommodate spacing */
+  margin-right: 1rem; /* Add right margin */
 }
 
 .histogram-bars {
@@ -887,6 +928,8 @@ input:checked + .slider:before {
 .price-slider {
   width: 100%;
   margin: 10px 0 5px 0;
+  padding: 0; /* Ensure no padding */
+  box-sizing: border-box; /* Include any borders in width calculation */
 }
 
 /* Responsive adjustments */
@@ -932,20 +975,53 @@ input:checked + .slider:before {
     background: #ccc;
 }
 
-.expand-refund-btn {
-    background: none;
-    border: none;
-    color: var(--primary-green);
-    cursor: pointer;
+.expand-refund-btn,
+.expand-access-length-btn {
+  background: none;
+  border: none;
+  color: var(--primary-green);
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 2px 5px;
+  margin: 0;
+  align-self: flex-start;
+  text-decoration: underline;
+}
+
+.expand-refund-btn:hover,
+.expand-access-length-btn:hover {
+  color: var(--accent-blue);
+  background-color: var(--light-green);
+}
+
+.access-length-options {
+    margin-left: 20px;
+    margin-top: 0px;
+    padding: 5px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-green);
+}
+
+.access-length-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.access-length-option input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.access-length-option label {
     font-size: 0.9em;
-    padding: 0 5px;
-    margin-left: 10px;
+    color: var(--dark-gray);
 }
 
 .refund-options {
     margin-left: 20px;
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 0px;
+    padding: 5px;
     background-color: #f9f9f9;
     border-radius: 4px;
     border-left: 3px solid var(--primary-green);

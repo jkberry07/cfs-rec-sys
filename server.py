@@ -49,8 +49,15 @@ def start_survey():
             refund_data.append(program.refund_term)
         else:
             refund_data.append([])
-    
-    return render_template('survey.html', price_list=prices, refund_data=refund_data)
+
+    access_length_data = []
+    for program in program_list:
+        if hasattr(program, 'access_length') and program.access_length:
+            access_length_data.append(program.access_length)
+        else:
+            access_length_data.append([])
+
+    return render_template('survey.html', price_list=prices, refund_data=refund_data, access_length_data=access_length_data)
 
 @app.route('/about', methods=['GET'])
 def about():
@@ -133,6 +140,7 @@ def recommendations():
     questions = [q for q in [q1, q2, q3] if q]
 
     max_price = request.form.get('max-price')
+
     refund = 'refund' in request.form
     refund_within_7 = 'refund-within-7' in request.form
     refund_within_14 = 'refund-within-14' in request.form
@@ -141,6 +149,14 @@ def recommendations():
     refund_6_12 = 'refund-after-6-before-12' in request.form
     refund_any_time = 'refund-any-time' in request.form
     refund_free_trial = 'refund-free-trial' in request.form
+
+    access_length = 'access-length' in request.form
+    access_monthly = 'access-monthly' in request.form
+    access_multi_month = 'access-multi-month' in request.form
+    access_12_months = 'access-12-months' in request.form
+    access_24_months = 'access-24-months' in request.form
+    access_lifetime = 'access-lifetime' in request.form
+
     financial_aid = 'financial-aid' in request.form
     coaching = 'coaching' in request.form
     community = 'community' in request.form
@@ -218,6 +234,12 @@ def recommendations():
         'refund_6_12': refund_6_12,
         'refund_6': refund_after_6,
         'refund_anylength': refund_any_time,
+        'access_length': access_length,
+        'access_monthly': access_monthly,
+        'access_multi_month': access_multi_month,
+        'access_12_months': access_12_months,
+        'access_24_months': access_24_months,
+        'access_lifetime': access_lifetime,
         'free_trial': refund_free_trial,
         'financial_aid': financial_aid,
         'coaching': coaching,
@@ -242,6 +264,12 @@ def recommendations():
                           refund_after_6 = refund_after_6,
                           refund_any_time = refund_any_time,
                           free_trial = refund_free_trial,
+                          access_length_survey=access_length,
+                          access_monthly=access_monthly,
+                          access_multi_month=access_multi_month,
+                          access_12_months=access_12_months,
+                          access_24_months=access_24_months,
+                          access_lifetime=access_lifetime,
                           financial_aid_survey = financial_aid,
                           coaching_survey=coaching,
                           community_survey=community,
