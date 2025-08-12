@@ -163,6 +163,7 @@
   <footer>
         <p>Disclaimer: The content in and throughout this website is for informational and educational purposes only, and is not a substitute for medical diagnosis, treatment or advice.</p>
         <p><a href="/privacy" style="color: var(--light-green);">Privacy Statement</a> | <a href="/contact" style="color: var(--light-green);">Contact</a></p>
+        <p>© 2025 Kendall Berry</p>
     </footer>
   
   
@@ -181,7 +182,7 @@
         const refundWithin30 = document.getElementById('refund-within-30-rec')?.checked || false;
         const refund6To12 = document.getElementById('refund-6-12-rec')?.checked || false;
         const refundAfter6 = document.getElementById('refund-after-6-rec')?.checked || false;
-        const refundAnyTime = document.getElementById('refund-any-time-rec')?.checked || false;
+        const refundAnyTime = document.getElementById('refund-any-rec')?.checked || false;
         const refundFreeTrial = document.getElementById('refund-trial-rec')?.checked || false;
 
         const accessLength = document.getElementById('access_length').checked;
@@ -214,11 +215,11 @@
                 const programRefundTerms = program.refund_terms || [];
                 // Check if program matches ANY of the selected refund criteria
                 const matchesRefundFilter = 
-                    (refundWithin7 && programRefundTerms.includes('Within 7 days')) ||
-                    (refundWithin14 && programRefundTerms.includes('Within 14 days')) ||
-                    (refundWithin30 && programRefundTerms.includes('Within 30 days')) ||
-                    (refundAfter6 && programRefundTerms.includes('After 6 months')) ||
-                    (refund6To12 && programRefundTerms.includes('After 6 months, before 12 months')) ||
+                    (refundWithin7 && (programRefundTerms.includes('Within 7 days') || programRefundTerms.includes('Within 14 days')||programRefundTerms.includes('Within 30 days') || programRefundTerms.includes('Any length of time'))) ||
+                    (refundWithin14 && (programRefundTerms.includes('Within 14 days') || programRefundTerms.includes('Within 30 days') || programRefundTerms.includes('Any length of time'))) ||
+                    (refundWithin30 && (programRefundTerms.includes('Within 30 days') || programRefundTerms.includes('Any length of time'))) ||
+                    (refundAfter6 && (programRefundTerms.includes('After 6 months') || programRefundTerms.includes('Any length of time'))) ||
+                    (refund6To12 && (programRefundTerms.includes('After 6 months, before 12 months') || programRefundTerms.includes('After 6 months') || programRefundTerms.includes('Any length of time'))) ||
                     (refundAnyTime && programRefundTerms.includes('Any length of time')) ||
                     (refundFreeTrial && programRefundTerms.includes('Free trial period'));
                 
