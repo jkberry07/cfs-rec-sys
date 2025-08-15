@@ -43,7 +43,7 @@
 
                   <label for="display-count"><strong>Display Top</strong></label>
                   <select id="display-count">
-                      <option value="3">Top 3</option>
+                      <!--<option value="3">Top 3</option>-->
                       <option value="5">Top 5</option>
                       <option value="10">Top 10</option>
                       <option value="all">All Programs</option>
@@ -148,6 +148,7 @@
       <div class="results">
           <div class="results-count" id="results-count">Showing all recovery programs</div>
           <div id="programs-list"></div>
+          <button id="show-more-btn" class="show-more-button" style="display: none;">Show More Programs</button>
       </div>
       
       </div>
@@ -171,8 +172,6 @@
     
     function displayPrograms() {
         const rankedPrograms = {{ ranked_programs|safe }};
-        console.log('Total programs:', rankedPrograms.length);
-        console.log('Sample program:', rankedPrograms[0]);
 
         const maxPrice = document.getElementById('max_price').value ? parseFloat(document.getElementById('max_price').value) : Infinity;
         const displayCount = document.getElementById('display-count').value;
@@ -241,17 +240,25 @@
             return true;
         });
         
-        
+        const totalFilteredPrograms = filteredPrograms.length;
+
         // Limit display count if needed
         if (displayCount !== 'all') {
             filteredPrograms = filteredPrograms.slice(0, parseInt(displayCount));
         }
-
-        console.log('Filtered programs:', filteredPrograms.length);
         
         // Update results count
         const resultsCountElement = document.getElementById('results-count');
         resultsCountElement.textContent = `Showing ${filteredPrograms.length} recovery program${filteredPrograms.length !== 1 ? 's' : ''}`;
+
+        const showMoreBtn = document.getElementById('show-more-btn');
+        if (displayCount !== 'all' && totalFilteredPrograms > parseInt(displayCount)) {
+            const remaining = totalFilteredPrograms - filteredPrograms.length;
+            showMoreBtn.style.display = 'block';
+            showMoreBtn.textContent = `Show More Programs`;
+        } else {
+            showMoreBtn.style.display = 'none';
+        }
 
         //Store the names of displayed programs
         const displayedPrograms = filteredPrograms.map(program => program.name);
@@ -582,6 +589,22 @@
         
         // Add event listener to the filter button
         document.getElementById('apply-filters').addEventListener('click', function() {
+            displayPrograms();
+        });
+
+        // Add event listener for "Show More" button
+        document.getElementById('show-more-btn').addEventListener('click', function() {
+            const displayCountSelect = document.getElementById('display-count');
+            const currentValue = displayCountSelect.value;
+            
+            // Increment the display count
+            if (currentValue === '5') {
+                displayCountSelect.value = '10';
+            } else if (currentValue === '10') {
+                displayCountSelect.value = 'all';
+            }
+            
+            // Refresh the display
             displayPrograms();
         });
     
