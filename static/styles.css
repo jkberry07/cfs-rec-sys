@@ -1041,3 +1041,20 @@ input:checked + .slider:before {
     font-size: 0.9em;
     color: var(--dark-gray);
 }
+
+.show-more-button {
+    display: block;
+    margin: 20px auto;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.show-more-button:hover {
+    background-color: #3d5d34;
+}
