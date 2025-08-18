@@ -18,7 +18,7 @@ with open('program_list.pkl', 'rb') as file:
 N_progs = len(program_list)
 N_similarities = 5 #For each user sentence, how many similarity scores to pull out for comparison to other user sentences scores
 Navg_sem = 5 #how many sentence similarities to average over when calculating the semantic scores
-Navg_tone = 10 #how many sentence similarities to average over when calculating the tone scores
+Navg_tone = 5 #how many sentence similarities to average over when calculating the tone scores
 
 
 def split_user_text(answers, q_list):
