@@ -214,6 +214,7 @@
                 const programRefundTerms = program.refund_terms || [];
                 // Check if program matches ANY of the selected refund criteria
                 const matchesRefundFilter = 
+                    (refundWithin7 && refundWithin14 && refundWithin30 && refundAfter6 && refund6To12 && refundAnyTime && refundFreeTrial) || // If all are selected, match all programs with any refund policy
                     (refundWithin7 && (programRefundTerms.includes('Within 7 days') || programRefundTerms.includes('Within 14 days')||programRefundTerms.includes('Within 30 days') || programRefundTerms.includes('Any length of time'))) ||
                     (refundWithin14 && (programRefundTerms.includes('Within 14 days') || programRefundTerms.includes('Within 30 days') || programRefundTerms.includes('Any length of time'))) ||
                     (refundWithin30 && (programRefundTerms.includes('Within 30 days') || programRefundTerms.includes('Any length of time'))) ||
